@@ -1,9 +1,9 @@
 version: 2
 jobs:
   build:    
-    working_directory: ~/reviewapp
     docker:
       - image: cirrusci/flutter:latest
+    working_directory: ~/project/reviewapp
     branches:
       only:
         - master
@@ -15,10 +15,11 @@ jobs:
           command: flutter doctor
       - run:
           name: Flutter test
-          command: flutter test
+          path: reviewapp
+          command: cd reviewapp; flutter test
       - run:
           name: Build Android APK
-          command: flutter build apk 
+          command: cd reviewapp; flutter build apk 
       - store_artifacts:
-          path: build/app/outputs/apk/release/reviewapp-release.apk
+          path: reviewapp/build/app/outputs/apk/release/reviewapp-release.apk
   
