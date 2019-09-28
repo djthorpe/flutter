@@ -3,7 +3,6 @@ jobs:
   build:    
     docker:
       - image: cirrusci/flutter:latest
-    working_directory: ~/project/reviewapp
     branches:
       only:
         - master
