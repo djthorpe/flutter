@@ -75,3 +75,5 @@
 # Mac-specific
 .DS_Store
 *.lock
+*.xcworkspacedata
+*.pbxproj
