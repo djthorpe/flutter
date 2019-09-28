@@ -15,11 +15,10 @@ jobs:
           command: flutter doctor
       - run:
           name: Flutter test
-          path: reviewapp
-          command: cd reviewapp; flutter test
+          command: cd ~/project/reviewapp && flutter test
       - run:
           name: Build Android APK
-          command: cd reviewapp; flutter build apk 
+          command: cd ~/project/reviewapp && flutter build apk 
       - store_artifacts:
           path: reviewapp/build/app/outputs/apk/release/reviewapp-release.apk
   
