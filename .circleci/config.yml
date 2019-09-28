@@ -18,6 +18,7 @@ jobs:
           command: cd reviewapp && flutter test
       - run:
           name: Build Android APK
-          command: cd reviewapp && flutter build appbundle --target-platform android-arm,android-arm64 
+          command: cd reviewapp && flutter build apk 
       - store_artifacts:
           path: build/app/outputs/apk/release/app-release.apk
+
