@@ -8,8 +8,7 @@ jobs:
       only: master
 
     steps:
-      - checkout:
-          path: reviewapp
+      - checkout
 
       - run:
           name: Run Flutter doctor
