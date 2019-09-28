@@ -1,11 +1,10 @@
 version: 2
 jobs:
-  build:    
+  build:
     docker:
       - image: cirrusci/flutter:latest
     branches:
-      only:
-        - master
+      only: master
     steps:
       - checkout
       - run:
@@ -14,13 +13,13 @@ jobs:
       - run:
           name: Tests
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/reviewapp && flutter test
-            cd ${CIRCLE_WORKING_DIRECTORY}/mdns_browser && flutter test
+            cd ~/project/reviewapp && flutter test
+            cd ~/project/mdns_browser && flutter test
       - run:
           name: Build Android APKs
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/reviewapp && flutter build apk 
-            cd ${CIRCLE_WORKING_DIRECTORY}/mdns_browser && flutter build apk
+            cd ~/project/reviewapp && flutter build apk 
+            cd ~/project/mdns_browser && flutter build apk
       - store_artifacts:
           path: reviewapp/build/app/outputs/apk/release/app-release.apk
       - store_artifacts:
