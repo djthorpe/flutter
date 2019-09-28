@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/review.dart';
+import 'package:reviewapp/screens/review.dart' show Review;
 
 void main() => runApp(MyApp());
 

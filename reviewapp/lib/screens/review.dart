@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import '../widgets/infocard.dart' show InfoCard;
+import 'package:reviewapp/widgets/infocard.dart';
 
 class Review extends StatefulWidget {
   @override
