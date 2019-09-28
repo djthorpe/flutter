@@ -14,8 +14,11 @@ jobs:
           name: Flutter doctor
           command: flutter doctor
       - run:
+          name: Flutter test
+          command: cd reviewapp && flutter test
+      - run:
           name: Build Android APK
-          command: ls -l && cd reviewapp && flutter build apk 
+          command: cd reviewapp && flutter build appbundle --target-platform android-arm,android-arm64 
       - store_artifacts:
-          path: reviewapp/build/app/outputs/apk/release/reviewapp-release.apk
+          path: build/app/outputs/apk/release/app-release.apk
   
