@@ -9,14 +9,13 @@ jobs:
         - master
         - v1
     steps:
-      - checkout:
-          path: ~/project/reviewapp
+      - checkout
       - run:
           name: Flutter doctor
           command: flutter doctor
       - run:
           name: Build Android APK
-          command: cd ~/project/reviewapp && ls -l && flutter build apk 
+          command: ls -l && cd reviewapp && flutter build apk 
       - store_artifacts:
           path: reviewapp/build/app/outputs/apk/release/reviewapp-release.apk
   
