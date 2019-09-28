@@ -14,9 +14,6 @@ jobs:
           name: Flutter doctor
           command: flutter doctor
       - run:
-          name: Flutter test
-          command: cd ~/project/reviewapp && flutter test
-      - run:
           name: Build Android APK
           command: cd ~/project/reviewapp && flutter build apk 
       - store_artifacts:
