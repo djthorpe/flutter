@@ -5,14 +5,13 @@ class InfoCard extends StatelessWidget {
   final String infoLabel;
   final Color cardColor;
   final IconData iconData;
-  const InfoCard(
-      {Key key,
-      @required this.infoValue,
-      @required this.infoLabel,
-      @required this.cardColor,
-      @required this.iconData,
-      })
-      : super(key: key);
+  const InfoCard({
+    Key key,
+    @required this.infoValue,
+    @required this.infoLabel,
+    @required this.cardColor,
+    @required this.iconData,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -43,4 +42,3 @@ class InfoCard extends StatelessWidget {
     );
   }
 }
-
