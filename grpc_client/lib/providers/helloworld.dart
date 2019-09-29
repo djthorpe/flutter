@@ -1,12 +1,12 @@
 import 'package:grpc/grpc.dart';
-import 'google/empty.pb.dart';
+import 'google/protobuf/empty.pb.dart';
 import "helloworld.pbgrpc.dart";
 
 class HelloWorld {
   ClientChannel _channel;
   GreeterClient _greeter;
 
-  Helloworld(String address, int port) {
+  HelloWorld(String address, int port) {
     var options =
         const ChannelOptions(credentials: const ChannelCredentials.insecure());
     _channel = ClientChannel(address, port: port, options: options);

@@ -27,7 +27,7 @@ can be used to generate the stubs:
 
 ```bash
 # Generate the Google Empty() stub
-bash% GOOGLE_PROTOBUF_DIR=`brew list protobuf | grep google/protobuf/empty.proto`
+bash% GOOGLE_PROTOBUF_DIR=$(dirname `brew list protobuf | grep google/protobuf/empty.proto`)
 bash% protoc --dart_out=grpc:lib/providers/google -I`dirname ${GOOGLE_PROTOBUF_DIR}` empty.proto
 
 # Generate the provider for helloworld
