@@ -17,7 +17,11 @@ import 'package:mdns_browser/pages/main.dart';
 
 void main() {
   BlocSupervisor.delegate = SimpleBlocDelegate();
-  runApp(App());
+  runApp(BlocProvider<AppBloc>(
+    builder: (context) {
+      return AppBloc()..dispatch(AppEventStart());
+    },
+    child: App()));
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -50,29 +54,16 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  AppBloc appBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    appBloc = AppBloc();
-    appBloc.dispatch(AppEventStart());
-  }
-
-  @override
-  void dispose() {
-    appBloc.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'mDNS Browser',
-      home: BlocProvider<AppBloc>(
-        builder: (context) => appBloc,
-        child: Main(),
-      ),
-    );
+        title: 'mDNS Browser',
+        home: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
+          if (state is AppStateUninitialized) {
+            return Placeholder();
+          } else {
+            return MainPage();
+          }
+        }));
   }
 }
