@@ -26,8 +26,15 @@ project, and the generated output should go into the `lib/providers` folder. The
 can be used to generate the stubs:
 
 ```bash
+# Generate the Google Empty() stub
+bash% GOOGLE_PROTOBUF_DIR=`brew list protobuf | grep google/protobuf/empty.proto`
+bash% protoc --dart_out=grpc:lib/providers/google -I`dirname ${GOOGLE_PROTOBUF_DIR}` empty.proto
+
+# Generate the provider for helloworld
 bash% protoc --dart_out=grpc:lib/providers -Ilib/protobuf helloworld.proto
+bash% install -d lib/providers/google
 ```
+
 
 
 
