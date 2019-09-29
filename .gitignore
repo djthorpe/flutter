@@ -17,4 +17,8 @@ doc/api/
 *.lock
 *.xcworkspacedata
 *.pbxproj
+*.pb.dart
+*.pbenum.dart
+*.pbgrpc.dart
+*.pbjson.dart
 

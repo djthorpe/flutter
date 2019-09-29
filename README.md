@@ -12,3 +12,22 @@ The applications here are developed on the `v1` branch and currently a configura
 
 Some screenshots will be added here in due course.
 
+## Some notes on gRPC
+
+On a Macintosh, use the following commands in order to make a working gRPC installation, assuming you have [Homebrew](https://brew.sh/) already installed:
+
+```bash
+bash% brew install grpc
+bash% brew upgrade grpc
+```
+
+We assume that the protocol buffer files (with extension `.proto`) are in the folder `lib/protobuf` of your
+project, and the generated output should go into the `lib/providers` folder. Then, the following command
+can be used to generate the stubs:
+
+```bash
+bash% protoc --dart_out=grpc:lib/providers -Ilib/protobuf helloworld.proto
+```
+
+
+
