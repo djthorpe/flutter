@@ -15,12 +15,17 @@ jobs:
           command: |
             cd ~/project/reviewapp && flutter test
             cd ~/project/mdns_browser && flutter test
+            cd ~/project/grpc_client && flutter test
       - run:
           name: Build Android APKs
           command: |
             cd ~/project/reviewapp && flutter build apk 
             cd ~/project/mdns_browser && flutter build apk
+            cd ~/project/grpc_client && flutter build apk
       - store_artifacts:
           path: reviewapp/build/app/outputs/apk/release/app-release.apk
       - store_artifacts:
           path: mdns_browser/build/app/outputs/apk/release/app-release.apk
+      - store_artifacts:
+          path: grpc_client/build/app/outputs/apk/release/app-release.apk
+
