@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mdns_browser/bloc/app.dart';
+import 'package:mdns_browser/widgets/service.dart';
 
 /////////////////////////////////////////////////////////////////////
 
@@ -24,17 +25,16 @@ class Services extends StatelessWidget {
   }
 
   Widget _bloc(BuildContext context) => BlocBuilder(
-        bloc: BlocProvider.of<AppBloc>(context),
-        builder: (BuildContext context, int state) {          
-          return _listView(context, state);
-        },
-      );
-
-  Widget _listView(BuildContext context, int state) =>
-      ListView.builder(
-        itemCount: 5,
-        itemBuilder: (BuildContext context, int index) {
-          return Placeholder();
-        },
-      );
+      bloc: BlocProvider.of<AppBloc>(context),
+      builder: (BuildContext context, AppState state) {
+        return ListView.builder(
+            itemCount: state.services.count,
+            itemBuilder: (BuildContext context, int index) {
+              var item = state.services.itemAtIndex(index);
+              return ServiceItem(
+                titleValue: item.name,
+                subtitleValue: item.hostPort,
+              );
+            });
+      });
 }

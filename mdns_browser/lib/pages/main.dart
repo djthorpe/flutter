@@ -12,7 +12,7 @@ import 'package:mdns_browser/pages/services.dart';
 
 /////////////////////////////////////////////////////////////////////
 
-class Main extends StatelessWidget {
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

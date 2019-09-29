@@ -12,31 +12,56 @@ import 'package:mdns_browser/models/service.dart';
 
 /////////////////////////////////////////////////////////////////////
 
+abstract class DiscoveryDelegate {
+  void onScanStarted();
+  void onScanStopped();
+  void onServiceFound(ServiceItem srv);
+  void onServiceLost(ServiceItem srv);
+  void onScanError();
+}
+
 class Discovery {
-  final Services services;
+  final ServiceList services = ServiceList();
+  final String type;
   Zeroconf _zeroconf;
+  DiscoveryDelegate delegate;
 
-  Discovery({this.services, type}) : assert(type != null && services != null) {
-    _zeroconf = Zeroconf(
-        onScanStarted: onScanStarted,
-        onScanStopped: onScanStopped,
-        onServiceResolved: onServiceFound,
-        onServiceLost: onServiceLost,
-        onError: onScanError);
-
-    // Start scanning
-    _zeroconf.startScan(type: type);
+  Discovery({this.delegate,this.type}) : assert(type != null) {
+    _zeroconf = Zeroconf(onScanStarted: onScanStarted,onScanStopped: onScanStopped,onServiceFound: onServiceFound,onServiceLost: onServiceLost,onServiceResolved:onServiceFound );
   }
 
   void dispose() async {
-    // Stop scanning
+    stop();
+  }
+
+  void start() async {
+    _zeroconf.startScan(type: type);
+  }
+
+  void stop() async {
     _zeroconf.stopScan();
   }
 
-  // Scanning callbacks
-  onScanStarted() => services.serviceScanStarted();
-  onScanStopped() => services.serviceScanStopped();
-  onServiceFound(Service srv) => services.serviceFound(srv);
-  onServiceLost(Service srv) => services.serviceLost(srv);
-  onScanError() => services.serviceScanError();
+  void onScanStarted() {
+    services.removeAllItems();
+    delegate.onScanStarted();
+  }
+
+  void onScanStopped() {
+    services.removeAllItems();
+    delegate.onScanStopped();
+  }
+
+  void onServiceFound(Service srv) {
+    delegate.onServiceFound(services.add(srv));
+  }
+
+  void onServiceLost(Service srv) {
+    delegate.onServiceLost(services.remove(srv));
+  }
+
+  void onScanError() {
+    delegate.onScanError();
+  }
 }
+

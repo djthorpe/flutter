@@ -7,7 +7,6 @@
 	Please see the LICENSE file for licensing information
 */
 
-import 'package:mdns_browser/bloc/app.dart';
 import 'package:zeroconf/zeroconf.dart';
 
 /////////////////////////////////////////////////////////////////////
@@ -24,13 +23,21 @@ class ServiceItem {
   int get port => this.service.port;
   List<String> get addresses => this.service.addresses;
 
+  String get hostPort {
+    if(this.service.host != null && this.service.port != 0) {
+      return "${this.service.host}:${this.service.port}";
+    } else {
+      return null;
+    }
+  }
+
   @override
   String toString() => this.service.toString();
 }
 
 /////////////////////////////////////////////////////////////////////
 
-class ServiceArray {
+class ServiceList {
   final List<ServiceItem> _items = [];
 
   void removeAllItems() {
@@ -73,35 +80,5 @@ class ServiceArray {
     } else {
       return null;
     }
-  }
-}
-
-/////////////////////////////////////////////////////////////////////
-
-class Services extends ServiceArray {
-  AppBloc appBloc;
-
-  // Constructor
-  Services(this.appBloc) : assert(appBloc != null);
-
-  void serviceScanStarted() {
-    super.removeAllItems();
-    appBloc.dispatch(AppEventScanStarted());
-  }
-
-  void serviceScanStopped() {
-    appBloc.dispatch(AppEventScanStopped());
-  }
-
-  void serviceScanError() {
-    appBloc.dispatch(AppEventScanError());
-  }
-
-  void serviceFound(Service srv) {
-    appBloc.dispatch(AppEventServiceFound(this.add(srv)));
-  }
-
-  void serviceLost(Service srv) {
-    appBloc.dispatch(AppEventServiceLost(this.remove(srv)));
   }
 }

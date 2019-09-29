@@ -56,32 +56,86 @@ class AppEventServiceLost extends AppEvent {
 }
 
 /////////////////////////////////////////////////////////////////////
+// STATE
+
+class AppState {
+  final ServiceList services;
+
+  AppState(ServiceList services) : services = services;
+}
+
+class AppStateUninitialized extends AppState {
+  AppStateUninitialized(ServiceList services) : super(services);
+
+  @override
+  String toString() => 'AppStateUninitialized';
+}
+
+class AppStarted extends AppState {
+  AppStarted(ServiceList services) : super(services);
+
+  @override
+  String toString() => 'AppStarted';
+}
+
+
+class AppUpdatedServiceList extends AppState {
+  AppUpdatedServiceList(ServiceList services) : super(services);
+
+  @override
+  String toString() => 'AppUpdatedServiceList(items=${services.count})';
+}
+
+/////////////////////////////////////////////////////////////////////
 // BLOC
 
-class AppBloc extends Bloc<AppEvent, int> {
-  Discovery discovery;
+class AppBloc extends Bloc<AppEvent, AppState> implements DiscoveryDelegate {
+  Discovery _discovery;
 
   AppBloc() : super() {
-     discovery = Discovery(services: Services(this), type: "_googlecast._tcp");
+     _discovery = Discovery(delegate: this,type: "_googlecast._tcp");
+  }
+
+  void onScanStarted() {
+    this.dispatch(AppEventScanStarted());
+  }
+  void onScanStopped() {
+    this.dispatch(AppEventScanStopped());
+  }
+  void onServiceFound(ServiceItem srv) {
+    this.dispatch(AppEventServiceFound(srv));
+  }
+  void onServiceLost(ServiceItem srv) {
+    this.dispatch(AppEventServiceLost(srv));
+  }
+  void onScanError() {
+    this.dispatch(AppEventScanError());
   }
 
   @override
-  Stream<int> mapEventToState(AppEvent event) async* {
+  Stream<AppState> mapEventToState(AppEvent event) async* {
     if (event is AppEventStart) {
-      yield 1;
+      // Start discovery
+      _discovery.start();
+      // Set AppStarted state
+      yield AppStarted(_discovery.services);
     }
     if (event is AppEventServiceFound) {
-      yield 2;
+      yield AppUpdatedServiceList(_discovery.services);
     }
     if (event is AppEventServiceLost) {
-      yield 3;
+      yield AppUpdatedServiceList(_discovery.services);
     }
     if (event is AppEventScanError) {
-      yield 4;
+      // Stop discovery
+      _discovery.stop();
+      yield AppStateUninitialized(_discovery.services);
     }
   }
 
   // Getters and setters
   @override
-  int get initialState => 0;
+  AppState get initialState => AppStateUninitialized(null);
 }
+
+
