@@ -16,12 +16,11 @@ import 'package:grpc_client/pages/main.dart';
 void main() {
   BlocSupervisor.delegate = SimpleBlocDelegate();
   runApp(BlocProvider<AppBloc>(
-    builder: (context) {
-      return AppBloc()..dispatch(AppEventStart());
-    },
-    child: App()));
+      builder: (context) {
+        return AppBloc()..dispatch(AppEventStart());
+      },
+      child: App()));
 }
-
 
 /////////////////////////////////////////////////////////////////////
 
@@ -29,22 +28,21 @@ class SimpleBlocDelegate extends BlocDelegate {
   @override
   void onEvent(Bloc bloc, Object event) {
     super.onEvent(bloc, event);
-    print(event);
+    print("Event <$event>");
   }
 
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
-    print(transition);
+    print("Transition <$transition>");
   }
 
   @override
   void onError(Bloc bloc, Object error, StackTrace stacktrace) {
     super.onError(bloc, error, stacktrace);
-    print('$error, $stacktrace');
+    print('Error $error, $stacktrace');
   }
 }
-
 
 /////////////////////////////////////////////////////////////////////
 
@@ -56,19 +54,29 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
+    final AppBloc _appBloc = BlocProvider.of<AppBloc>(context);
     return MaterialApp(
         title: 'gRPC Client',
         home: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
           if (state is AppStateUninitialized) {
             return Placeholder();
+          } else if (state is AppConnect) {
+            return Scaffold(
+                body: Center(
+                    child: RaisedButton(
+                        child: Text("Connect"), onPressed: () {
+                          _appBloc.dispatch(AppEventConnect());
+                        })));
+          } else if (state is AppEventConnectError) {
+            return Scaffold(
+                body: Center(
+                    child: RaisedButton(
+                        child: Text("Error"), onPressed: () {
+                          _appBloc.dispatch(AppEventConnect());
+                        })));
           } else {
             return Main();
           }
         }));
   }
 }
-
-
-
-
-
