@@ -58,7 +58,7 @@ fi
 # Calculate folders
 CURRENT_DIR=`pwd`
 PROTO_DIR="${CURRENT_DIR}/lib/protobuf"
-GOOGLE_PROTO_DIR="${HOME}/sdks/protoc/include"
+GOOGLE_PROTO_DIR="${HOME}/sdks/protoc/include/google/protobuf"
 REFLECT_PROTO_DIR=$( cd "${CURRENT_DIR}/../grpc/reflection/v1alpha" && pwd )
 
 # Generate Local protos
