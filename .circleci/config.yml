@@ -11,11 +11,11 @@ jobs:
       - checkout
 
       - run:
-          name: Flutter doctor
+          name: Flutter Doctor
           command: flutter doctor
 
       - run:
-          name: Install Protocol Buffers dependences
+          name: Install Protocol Buffers
           command: |
             cd ~/sdks
             wget https://github.com/protocolbuffers/protobuf/releases/download/v3.9.2/protoc-3.9.2-linux-x86_64.zip
@@ -26,7 +26,7 @@ jobs:
       - run:
           name: Generate Dart gRPC files
           environment:
-            PATH: "$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin"   
+            PATH: $PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin
           command: |
             cd ~/project/grpc_client
             install -d lib/providers/google/protobuf
@@ -34,20 +34,20 @@ jobs:
             chmod +x ${HOME}/project/genproto-circleci.sh
             ${HOME}/project/genproto-circleci.sh
 
-      # Test   
       - run:
+          name: Test
           environment:
-            PATH: "$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin"   
+            PATH: $PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin
           command: |
             cd ~/project/reviewapp && flutter test
             cd ~/project/mdns_browser && flutter test
             cd ~/project/grpc_client && flutter test
 
-      # Build
       - run:
           name: Build Android APKs
+          environment:
+            PATH: $PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin
           command: |
-            export PATH="$PATH":"$HOME/sdks/protoc/bin":"$HOME/.pub-cache/bin"          
             cd ~/project/reviewapp && flutter build apk 
             cd ~/project/mdns_browser && flutter build apk
             cd ~/project/grpc_client && flutter build apk
