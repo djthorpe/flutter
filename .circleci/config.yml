@@ -19,6 +19,12 @@ jobs:
             cd protoc && unzip ../protoc-3.9.2-linux-x86_64.zip
             flutter pub global activate protoc_plugin
       - run:
+          name: Generate Dart gRPC files
+          command: |
+            cd ~/projects/grpc_client
+            install -d lib/providers/google/protobuf       
+            source ~/projects/genproto-circleci.sh
+     - run:
           name: Tests
           command: |
             export PATH="$PATH":"$HOME/sdks/protoc/bin":"$HOME/.pub-cache/bin"          
