@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bloc/bloc.dart';
 import 'package:grpc_client/bloc/app.dart';
 import 'package:grpc_client/widgets/connect_form.dart';
+import 'package:grpc_client/widgets/disconnect_form.dart';
 
 /////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ class _MainPage extends State<MainPage> {
                   if (state is AppStateConnect &&
                       state.state == ConnectState.Error) {
                     Scaffold.of(context).showSnackBar(
-                        errorSnackBar(state.exception.toString()));
+                        snackBarWithText(state.exception.toString()));
                   }
                 },
                 child: BlocBuilder<AppBloc, AppState>(
@@ -31,20 +31,25 @@ class _MainPage extends State<MainPage> {
   }
 
   Widget bodyBuilder(BuildContext context, AppState state) {
-    if (state is AppStateUninitialized) {
-      return Placeholder();
-    } else if (state is AppStateConnect &&
-        state.state == ConnectState.Disconnected) {
-      return ConnectForm();
-    } else if (state is AppStateConnect && state.state == ConnectState.Error) {
-      return ConnectForm();
-    } else if (state is AppStateConnect &&
-        state.state == ConnectState.Connecting) {
-      return Center(child: Text("Connecting"));
-    } else {
-      return Center(child: Text("$state"));
+    if (state is AppStateStarted) {
+      return DisconnectForm();
     }
+
+    if (state is AppStateConnect && state.state == ConnectState.Disconnected) {
+      return ConnectForm(state.defaults);
+    }
+
+    if (state is AppStateConnect && state.state == ConnectState.Error) {
+      return ConnectForm(state.defaults);
+    }
+
+    if (state is AppStateConnect && state.state == ConnectState.Connecting) {
+      return ConnectForm(state.defaults);
+    }
+
+    // Default case
+    return Placeholder();
   }
 
-  Widget errorSnackBar(String msg) => SnackBar(content: Text(msg));
+  Widget snackBarWithText(String msg) => SnackBar(content: Text(msg));
 }
