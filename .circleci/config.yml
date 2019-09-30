@@ -25,10 +25,14 @@ jobs:
 
       - run:
           name: Generate Dart gRPC files
+          environment:
+            PATH: "$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin"   
           command: |
-            cd ~/projects/grpc_client
+            cd ~/project/grpc_client
             install -d lib/providers/google/protobuf
-            ${HOME}/projects/genproto-circleci.sh
+            install -d lib/providers/grpc/reflection/v1alpha
+            chmod +x ${HOME}/project/genproto-circleci.sh
+            ${HOME}/project/genproto-circleci.sh
 
       # Test   
       - run:
