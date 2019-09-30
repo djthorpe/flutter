@@ -13,8 +13,12 @@ import 'package:grpc_client/pages/main.dart';
 
 /////////////////////////////////////////////////////////////////////
 
+
 void main() {
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  bool debug = false;
+  if(debug) {
+    BlocSupervisor.delegate = DebugBlocDelegate();
+  }
   runApp(BlocProvider<AppBloc>(
       builder: (context) {
         return AppBloc()..dispatch(AppEventStart());
@@ -24,7 +28,7 @@ void main() {
 
 /////////////////////////////////////////////////////////////////////
 
-class SimpleBlocDelegate extends BlocDelegate {
+class DebugBlocDelegate extends BlocDelegate {
   @override
   void onEvent(Bloc bloc, Object event) {
     super.onEvent(bloc, event);

@@ -40,13 +40,11 @@ class _ConnectFormState extends State<ConnectForm> {
             children: formFields(context)));
   }
 
-  List<Widget> formFields(BuildContext context) {
-    return [
+  List<Widget> formFields(BuildContext context) => [
       formFieldHost(context),
       formFieldPort(context),
       formFieldAction(context)
     ];
-  }
 
   formFieldHost(BuildContext context) => TextFormField(
           inputFormatters: [

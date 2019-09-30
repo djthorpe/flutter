@@ -14,6 +14,10 @@ import 'package:grpc_client/providers/defaults.dart';
 
 abstract class AppEvent {}
 
+enum AppEventMethod {
+  SayHello, Ping
+}
+
 class AppEventStart extends AppEvent {
   @override
   String toString() => 'AppEventStart';
@@ -38,10 +42,19 @@ class AppEventConnectError extends AppEvent {
   String toString() => 'AppEventConnectError($exception)';
 }
 
-
 class AppEventDisconnect extends AppEvent {
   @override
   String toString() => 'AppEventDisconnect';
+}
+
+class AppEventCall extends AppEvent {
+  final AppEventMethod method;
+  final String name;
+
+  AppEventCall(this.method,{this.name}) : super();
+
+  @override
+  String toString() => 'AppEventCall($method,$name)';
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -70,8 +83,12 @@ class AppStateConnect extends AppState {
 }
 
 class AppStateStarted extends AppState {
+  final String message;
+
+  AppStateStarted({this.message});
+
   @override
-  String toString() => 'AppStateStarted';
+  String toString() => 'AppStateStarted($message)';
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -108,6 +125,16 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       try {
         await _helloworld.disconnect();
         yield AppStateConnect(ConnectState.Disconnected,defaults: _defaults);
+      } catch(e) {
+        yield AppStateConnect(ConnectState.Error,exception: e,defaults: _defaults);
+      }
+    }
+
+    // Call SayHello
+    if (event is AppEventCall && event.method == AppEventMethod.SayHello) {
+      try {
+        var response = await _helloworld.sayHello(event.name);
+        yield AppStateStarted(message: response.message);
       } catch(e) {
         yield AppStateConnect(ConnectState.Error,exception: e,defaults: _defaults);
       }

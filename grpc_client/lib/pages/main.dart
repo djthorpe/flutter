@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grpc_client/bloc/app.dart';
 import 'package:grpc_client/widgets/connect_form.dart';
 import 'package:grpc_client/widgets/disconnect_form.dart';
+import 'package:grpc_client/widgets/sayhello_form.dart';
 
 /////////////////////////////////////////////////////////////////////
 
@@ -24,6 +25,10 @@ class _MainPage extends State<MainPage> {
                     Scaffold.of(context).showSnackBar(
                         snackBarWithText(state.exception.toString()));
                   }
+                  if (state is AppStateStarted && state.message != null) {
+                    Scaffold.of(context)
+                        .showSnackBar(snackBarWithText(state.message));
+                  }
                 },
                 child: BlocBuilder<AppBloc, AppState>(
                     builder: (context, state) =>
@@ -32,7 +37,7 @@ class _MainPage extends State<MainPage> {
 
   Widget bodyBuilder(BuildContext context, AppState state) {
     if (state is AppStateStarted) {
-      return DisconnectForm();
+      return Column(children: [DisconnectForm(),SayHelloForm()]);
     }
 
     if (state is AppStateConnect && state.state == ConnectState.Disconnected) {
@@ -51,5 +56,11 @@ class _MainPage extends State<MainPage> {
     return Placeholder();
   }
 
-  Widget snackBarWithText(String msg) => SnackBar(content: Text(msg));
+  Widget snackBarWithText(String msg) => SnackBar(
+    content: Text(msg),    
+    duration: Duration(milliseconds: 750),
+    action: SnackBarAction(
+      label: "OK",
+      onPressed: () => {}
+    ));
 }
