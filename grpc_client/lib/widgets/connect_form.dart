@@ -9,34 +9,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grpc_client/bloc/app.dart';
-
-/////////////////////////////////////////////////////////////////////
-
-enum ConnectFormAction { Connect }
+import 'package:grpc_client/providers/defaults.dart';
 
 /////////////////////////////////////////////////////////////////////
 
 class ConnectForm extends StatefulWidget {
-  final String hostName;
-  final int portNumber;
+  final Defaults defaults;
 
-  // Constructor
-  ConnectForm({Key key, this.hostName, this.portNumber}) : super(key: key);
+  const ConnectForm(this.defaults, {Key key}) : super(key: key);
 
-  // Overrides
   @override
-  _ConnectFormState createState() => _ConnectFormState();
+  _ConnectFormState createState() => _ConnectFormState(defaults);
 }
 
-/////////////////////////////////////////////////////////////////////
-
-class _ConnectFormState extends State {
+class _ConnectFormState extends State<ConnectForm> {
   final formKey = GlobalKey<FormState>();
-  String hostName;
-  int portNumber;
+  final Defaults defaults;
 
   // Constructor
-  _ConnectFormState({this.hostName, this.portNumber}) : super();
+  _ConnectFormState(this.defaults) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +35,16 @@ class _ConnectFormState extends State {
         key: formKey,
         autovalidate: true,
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 32.0),
-          children: <Widget>[
-            formFieldHost(context),
-            formFieldPort(context),
-            formFieldAction(context),
-          ],
-        ));
+            padding:
+                const EdgeInsets.symmetric(vertical: 32.0, horizontal: 32.0),
+            children: formFields(context)));
   }
+
+  List<Widget> formFields(BuildContext context) => [
+      formFieldHost(context),
+      formFieldPort(context),
+      formFieldAction(context)
+    ];
 
   formFieldHost(BuildContext context) => TextFormField(
           inputFormatters: [
@@ -65,8 +58,12 @@ class _ConnectFormState extends State {
               return null;
             }
           },
-          initialValue: this.hostName,
-          onSaved: (value) => setState(() => this.hostName = value),
+          initialValue: this.defaults.hostName,
+          onSaved: (value) => {
+                setState(() {
+                  this.defaults.hostName = value;
+                })
+              },
           decoration: const InputDecoration(
               icon: const Icon(Icons.computer),
               hintText: 'Hostname of remote service',
@@ -84,35 +81,34 @@ class _ConnectFormState extends State {
           return null;
         }
       },
-      initialValue: this.portNumber == null ? null : this.portNumber.toString(),
-      onSaved: (value) => setState(() => this.portNumber = int.parse(value)),
+      initialValue: this.defaults.portNumber?.toString(),
+      onSaved: (value) => {
+            setState(() {
+              this.defaults.portNumber = int.parse(value);
+            })
+          },
       decoration: const InputDecoration(
         icon: const Icon(Icons.power),
         hintText: 'Port of remote service',
         labelText: 'Port',
       ));
 
-  formFieldAction(BuildContext context) => Container(
-      padding: const EdgeInsets.only(left: 40.0, top: 20.0),
-      child: RaisedButton(
-          child: const Text('Connect'),
-          onPressed: () {
-            final form = formKey.currentState;
-            if (form.validate()) {
-              form.save();
-              action(context, ConnectFormAction.Connect);
-              // DO SOMETHING HERE
-            }
-          }));
+  formFieldAction(BuildContext context) {
+    return Container(
+        padding: const EdgeInsets.only(left: 40.0, top: 20.0),
+        child: RaisedButton(
+            child: const Text('Connect'),
+            onPressed: () {
+              final form = formKey.currentState;
+              if (form.validate()) {
+                form.save();
+                action(context);
+              }
+            }));
+  }
 
-  action(BuildContext context, ConnectFormAction action) {
+  void action(BuildContext context) {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    switch (action) {
-      case ConnectFormAction.Connect:
-        appBloc.dispatch(AppEventConnect(this.hostName, this.portNumber));
-        break;
-      default:
-        print("No action defined for $action");
-    }
+    appBloc.dispatch(AppEventConnect(defaults.hostName, defaults.portNumber));
   }
 }
