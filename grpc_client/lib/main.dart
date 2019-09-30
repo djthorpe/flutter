@@ -54,29 +54,9 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    final AppBloc _appBloc = BlocProvider.of<AppBloc>(context);
     return MaterialApp(
         title: 'gRPC Client',
-        home: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
-          if (state is AppStateUninitialized) {
-            return Placeholder();
-          } else if (state is AppConnect) {
-            return Scaffold(
-                body: Center(
-                    child: RaisedButton(
-                        child: Text("Connect"), onPressed: () {
-                          _appBloc.dispatch(AppEventConnect());
-                        })));
-          } else if (state is AppEventConnectError) {
-            return Scaffold(
-                body: Center(
-                    child: RaisedButton(
-                        child: Text("Error"), onPressed: () {
-                          _appBloc.dispatch(AppEventConnect());
-                        })));
-          } else {
-            return Main();
-          }
-        }));
+        home: MainPage()
+    );
   }
 }

@@ -19,23 +19,30 @@ class AppEventStart extends AppEvent {
 }
 
 class AppEventConnect extends AppEvent {
+  final String hostName;
+  final int portNumber;
+
+  AppEventConnect(this.hostName,this.portNumber) : super();
+
   @override
-  String toString() => 'AppEventConnect';
+  String toString() => 'AppEventConnect($hostName:$portNumber)';
 }
 
 class AppEventConnectError extends AppEvent {
   final Exception exception;
 
-  AppEventConnectError(Exception e)
-      : exception = e,
-        super();
+  AppEventConnectError(this.exception) : super();
 
   @override
-  String toString() => 'AppEventConnectError';
+  String toString() => 'AppEventConnectError($exception)';
 }
 
 /////////////////////////////////////////////////////////////////////
 // STATE
+
+enum ConnectState {
+  Disconnected, Connecting, Connected, Error
+}
 
 class AppState {}
 
@@ -44,19 +51,19 @@ class AppStateUninitialized extends AppState {
   String toString() => 'AppStateUninitialized';
 }
 
-class AppConnect extends AppState {
+class AppStateConnect extends AppState {
+  final ConnectState state;
+  final Exception exception;
+
+  AppStateConnect(this.state,{this.exception}) : super();
+
   @override
-  String toString() => 'AppConnect';
+  String toString() => 'AppStateConnect($state,$exception)';
 }
 
-class AppStarted extends AppState {
+class AppStateStarted extends AppState {
   @override
-  String toString() => 'AppStarted';
-}
-
-class AppDisconnect extends AppState {
-  @override
-  String toString() => 'AppDisconnect';
+  String toString() => 'AppStateStarted';
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -67,24 +74,21 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   @override
   Stream<AppState> mapEventToState(AppEvent event) async* {
+
+    // Set state to disconnected on start
     if (event is AppEventStart) {
-      yield AppConnect();
-    }
-    if (event is AppEventConnect) {
-      // Connect to gRPC
-      try {
-        await _helloworld.connect("127.0.0.2", 8080);
-        print("connected");
-      } catch(e) {
-        print("not connected");
-        this.dispatch(AppEventConnectError(e));
-      }
+      yield AppStateConnect(ConnectState.Disconnected);
     }
 
-    if (event is AppEventConnectError) {
-      var evt = event as AppEventConnectError;
-      print("Error: ${evt.exception}");
-      yield AppConnect();
+    // Connect
+    if (event is AppEventConnect) {
+      yield AppStateConnect(ConnectState.Connecting);
+      try {
+        await _helloworld.connect(event.hostName,event.portNumber);
+        yield AppStateStarted();
+      } catch(e) {
+        yield AppStateConnect(ConnectState.Error,exception: e);
+      }
     }
   }
 
