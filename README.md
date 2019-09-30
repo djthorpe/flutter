@@ -1,5 +1,8 @@
 # flutter
 
+[![CircleCI](https://circleci.com/gh/djthorpe/flutter/tree/master.svg?style=svg)](https://circleci.com/gh/djthorpe/flutter/tree/master)
+
+
 This repository includes [Flutter](https://flutter.dev/) application examples which is a cross-platform application development framework. The specific examples in this repository are:
 
 * __ReviewApp__: Example from [State management for Flutter apps with MobX](https://circleci.com/blog/state-management-for-flutter-apps-with-mobx/) (CircleCI Tutorials)
@@ -17,23 +20,22 @@ Some screenshots will be added here in due course.
 On a Macintosh, use the following commands in order to make a working gRPC installation, assuming you have [Homebrew](https://brew.sh/) already installed:
 
 ```bash
-bash% brew install grpc
-bash% brew upgrade grpc
+bash% brew install grpc && brew upgrade grpc
 ```
 
-We assume that the protocol buffer files (with extension `.proto`) are in the folder `lib/protobuf` of your
-project, and the generated output should go into the `lib/providers` folder. Then, the following command
-can be used to generate the stubs:
+We assume that the protocol buffer files (with extension `.proto`) are in the folder `lib/protobuf` of your project. The generated output should go into the `lib/providers` folder.
+
+For Macintosh, there is a script in order to generate the Dart files:
 
 ```bash
-# Generate the Google Empty() stub
-bash% GOOGLE_PROTOBUF_DIR=$(dirname `brew list protobuf | grep google/protobuf/empty.proto`)
-bash% protoc --dart_out=grpc:lib/providers/google -I`dirname ${GOOGLE_PROTOBUF_DIR}` empty.proto
-
-# Generate the provider for helloworld
-bash% protoc --dart_out=grpc:lib/providers -Ilib/protobuf helloworld.proto
-bash% install -d lib/providers/google
+bash% git clone git@github.com:djthorpe/flutter.git
+bash% cd flutter/grpc_client
+bash% install -d lib/providers/google/protobuf
+bash% install -d lib/providers/grpc/reflection/v1alpha
+bash% source ../genproto-darwin.sh
+bash% flutter test && flutter build ios
 ```
+
 
 
 
