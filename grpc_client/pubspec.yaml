@@ -1,0 +1,22 @@
+name: grpc_client
+description: gRPC Client
+
+version: 1.0.0
+
+environment:
+  sdk: ">=2.2.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  grpc: ^2.1.2
+  protobuf: ^0.14.4 
+  bloc: ^0.15.0
+  flutter_bloc: ^0.21.0
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
