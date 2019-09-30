@@ -25,30 +25,29 @@ jobs:
 
       - run:
           name: Generate Dart gRPC files
-          environment:
-            PATH: $PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin
           command: |            
+            echo 'export PATH=$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin' >> $BASH_ENV
+            source $BASH_ENV
             cd ~/project/grpc_client
-            echo $PATH
-            /usr/bin/install -d lib/providers/google/protobuf
-            /usr/bin/install -d lib/providers/grpc/reflection/v1alpha
+            install -d lib/providers/google/protobuf
+            install -d lib/providers/grpc/reflection/v1alpha
             chmod +x ${HOME}/project/genproto-circleci.sh
             ${HOME}/project/genproto-circleci.sh
 
       - run:
           name: Test
-          environment:
-            PATH: $PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin
           command: |
+            echo 'export PATH=$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin' >> $BASH_ENV
+            source $BASH_ENV
             cd ~/project/reviewapp && flutter test
             cd ~/project/mdns_browser && flutter test
             cd ~/project/grpc_client && flutter test
 
       - run:
           name: Build Android APKs
-          environment:
-            PATH: $PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin
           command: |
+            echo 'export PATH=$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin' >> $BASH_ENV
+            source $BASH_ENV
             cd ~/project/reviewapp && flutter build apk 
             cd ~/project/mdns_browser && flutter build apk
             cd ~/project/grpc_client && flutter build apk
