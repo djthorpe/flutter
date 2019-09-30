@@ -3,13 +3,17 @@ jobs:
   build:
     docker:
       - image: cirrusci/flutter:latest
+
     branches:
       only: master
+
     steps:
       - checkout
+
       - run:
           name: Flutter doctor
           command: flutter doctor
+
       - run:
           name: Install Protocol Buffers dependences
           command: |
@@ -18,19 +22,24 @@ jobs:
             install -d protoc
             cd protoc && unzip ../protoc-3.9.2-linux-x86_64.zip
             flutter pub global activate protoc_plugin
+
       - run:
           name: Generate Dart gRPC files
           command: |
             cd ~/projects/grpc_client
-            install -d lib/providers/google/protobuf       
-            source ~/projects/genproto-circleci.sh
-     - run:
-          name: Tests
+            install -d lib/providers/google/protobuf
+            ${HOME}/projects/genproto-circleci.sh
+
+      # Test   
+      - run:
+          environment:
+            PATH: "$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin"   
           command: |
-            export PATH="$PATH":"$HOME/sdks/protoc/bin":"$HOME/.pub-cache/bin"          
             cd ~/project/reviewapp && flutter test
             cd ~/project/mdns_browser && flutter test
             cd ~/project/grpc_client && flutter test
+
+      # Build
       - run:
           name: Build Android APKs
           command: |
@@ -38,10 +47,12 @@ jobs:
             cd ~/project/reviewapp && flutter build apk 
             cd ~/project/mdns_browser && flutter build apk
             cd ~/project/grpc_client && flutter build apk
+
       - store_artifacts:
           path: reviewapp/build/app/outputs/apk/release/app-release.apk
+
       - store_artifacts:
           path: mdns_browser/build/app/outputs/apk/release/app-release.apk
+
       - store_artifacts:
           path: grpc_client/build/app/outputs/apk/release/app-release.apk
-
