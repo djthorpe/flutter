@@ -11,14 +11,24 @@ jobs:
           name: Flutter doctor
           command: flutter doctor
       - run:
+          name: Install Protocol Buffers dependences
+          command: |
+            cd ~/sdks
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.9.2/protoc-3.9.2-linux-x86_64.zip
+            install -d protoc
+            cd protoc && unzip ../protoc-3.9.2-linux-x86_64.zip
+            flutter pub global activate protoc_plugin
+      - run:
           name: Tests
           command: |
+            export PATH="$PATH":"$HOME/sdks/protoc/bin":"$HOME/.pub-cache/bin"          
             cd ~/project/reviewapp && flutter test
             cd ~/project/mdns_browser && flutter test
             cd ~/project/grpc_client && flutter test
       - run:
           name: Build Android APKs
           command: |
+            export PATH="$PATH":"$HOME/sdks/protoc/bin":"$HOME/.pub-cache/bin"          
             cd ~/project/reviewapp && flutter build apk 
             cd ~/project/mdns_browser && flutter build apk
             cd ~/project/grpc_client && flutter build apk
