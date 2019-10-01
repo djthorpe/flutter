@@ -39,13 +39,12 @@
     result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
   } else if ([@"startDiscovery" isEqualToString:call.method]) {
     NSDictionary* args = (NSDictionary* )call.arguments;
-    NSString* serviceType = [args objectForKey:@"serviceType"];
-    NSString* domain = @"local";
-// TODO    NSString* domain = [args objectForKey:@"domain"];
-    if(domain == nil || [domain isEqualToString:@""]) {
-      [self startDiscovery:serviceType inDomain:@"local" resolveTimeout:5.0];
+    id serviceType = [args objectForKey:@"serviceType"];
+    id domain = [args objectForKey:@"domain"];
+    if([domain isKindOfClass:[NSString class]] && [serviceType isKindOfClass:[NSString class]]) {
+      [self startDiscovery:serviceType inDomain:domain resolveTimeout:[self resolveTimeout]];
     } else {
-      [self startDiscovery:serviceType inDomain:domain resolveTimeout:5.0];
+      [self startDiscovery:serviceType inDomain:@"local" resolveTimeout:[self resolveTimeout]];
     }
     result([NSNull null]);
   } else if ([@"stopDiscovery" isEqualToString:call.method]) {

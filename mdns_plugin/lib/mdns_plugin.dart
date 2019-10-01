@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
+/////////////////////////////////////////////////////////////////////
+
 abstract class MDNSPluginDelegate {
   void onDiscoveryStarted();
   void onDiscoveryStopped();
@@ -10,6 +12,8 @@ abstract class MDNSPluginDelegate {
   void onServiceUpdated(MDNSService service);
   void onServiceRemoved(MDNSService service);
 }
+
+/////////////////////////////////////////////////////////////////////
 
 class MDNSService {
   final Map map;
@@ -25,6 +29,20 @@ class MDNSService {
   String get serviceType => map["type"];
   int get port => map["port"];
   Map get txt => map["txt"];
+  List<String> get addresses {
+    var addresses = map["address"];
+    if(addresses is List<dynamic>) {
+      var address = List<String>();
+      addresses.forEach((value) {
+        if(value.length == 2 && value[0] is String) {
+          address.add(value[0]);
+        }
+      });
+      return address; 
+    } else {
+      return [];
+    }    
+  }
 
   // METHODS ////////////////////////////////////////////////////////
 
@@ -43,6 +61,9 @@ class MDNSService {
     if(hostName != "" && port > 0) {
       parts = parts + "host='$hostName:$port' ";
     }
+    if(addresses.length > 0) {
+      parts = parts + "addresses=$addresses ";
+    }
     txt.forEach((k,v) {
       var vstr = toUTF8String(v);
       parts = parts + "$k='$vstr' ";
@@ -50,6 +71,8 @@ class MDNSService {
     return "<MDNSService>{ $parts}";
   }
 }
+
+/////////////////////////////////////////////////////////////////////
 
 class MDNSPlugin {
   static const MethodChannel _methodChannel = const MethodChannel('mdns_plugin');
