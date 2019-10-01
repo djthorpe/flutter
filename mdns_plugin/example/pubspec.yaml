@@ -1,0 +1,21 @@
+name: mdns_plugin_example
+description: Demonstrates how to use the mdns_plugin plugin.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  mdns_plugin:
+    path: ../
+
+flutter:
+  uses-material-design: true
