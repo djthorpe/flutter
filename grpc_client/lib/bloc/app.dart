@@ -123,7 +123,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     // Disconnect
     if (event is AppEventDisconnect) {
       try {
-        await _helloworld.disconnect();
+        _helloworld.disconnect();
         yield AppStateConnect(ConnectState.Disconnected,defaults: _defaults);
       } catch(e) {
         yield AppStateConnect(ConnectState.Error,exception: e,defaults: _defaults);
