@@ -43,6 +43,7 @@ class _ConnectFormState extends State<ConnectForm> {
   List<Widget> formFields(BuildContext context) => [
       formFieldHost(context),
       formFieldPort(context),
+      formFieldSecure(context),
       formFieldAction(context)
     ];
 
@@ -58,10 +59,10 @@ class _ConnectFormState extends State<ConnectForm> {
               return null;
             }
           },
-          initialValue: this.defaults.hostName,
+          initialValue: defaults.hostName,
           onSaved: (value) => {
                 setState(() {
-                  this.defaults.hostName = value;
+                  defaults.hostName = value;
                 })
               },
           decoration: const InputDecoration(
@@ -81,10 +82,10 @@ class _ConnectFormState extends State<ConnectForm> {
           return null;
         }
       },
-      initialValue: this.defaults.portNumber?.toString(),
+      initialValue: defaults.portNumber?.toString(),
       onSaved: (value) => {
             setState(() {
-              this.defaults.portNumber = int.parse(value);
+              defaults.portNumber = int.parse(value);
             })
           },
       decoration: const InputDecoration(
@@ -92,6 +93,17 @@ class _ConnectFormState extends State<ConnectForm> {
         hintText: 'Port of remote service',
         labelText: 'Port',
       ));
+
+  formFieldSecure(BuildContext context) => Container(
+        padding: const EdgeInsets.only(left: 22.0),
+        child: SwitchListTile(
+          title: const Text("Secure communication"),
+          subtitle: const Text("Use https"),
+          value: defaults.secure,
+          onChanged: (bool value) {
+            setState(() => defaults.secure = value);
+          },
+        ));
 
   formFieldAction(BuildContext context) {
     return Container(
@@ -109,6 +121,6 @@ class _ConnectFormState extends State<ConnectForm> {
 
   void action(BuildContext context) {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    appBloc.dispatch(AppEventConnect(defaults.hostName, defaults.portNumber));
+    appBloc.dispatch(AppEventConnect(defaults.hostName, defaults.portNumber,defaults.secure));
   }
 }

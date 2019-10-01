@@ -8,19 +8,44 @@
 import 'package:grpc/grpc.dart';
 import 'google/protobuf/empty.pb.dart';
 import "helloworld.pbgrpc.dart";
+import 'dart:io';
 
 /////////////////////////////////////////////////////////////////////
 
+bool badCertificateHandler (X509Certificate certificate,String hostPort) {
+  // Ignore bad certificates
+  return true;
+}
+
 class HelloWorld {
+  // Constants
+  static const String userAgent = "com.mutablelogic.grpc_client.helloworld";
+  static const Duration connectionTimeout = Duration(seconds: 1);
+  static const Duration idleTimeout = Duration(minutes: 1);
+
+  // Instance variables
   ClientChannel _channel;
   GreeterClient _stub;
 
-  Future<void> connect(String address, int port) {
-    var options = const ChannelOptions(
-        credentials: const ChannelCredentials.insecure(),
-        connectionTimeout: Duration(seconds: 1),
-        idleTimeout: Duration(seconds: 1),
-        userAgent: "com.mutablelogic.grpc_client.helloworld");
+  Future<void> connect(String address, int port, {bool secure}) {
+    ChannelOptions options;
+
+    if (secure) {
+      options = ChannelOptions(
+          credentials: const ChannelCredentials.secure(
+            onBadCertificate: badCertificateHandler
+          ),
+          connectionTimeout: connectionTimeout,
+          idleTimeout: idleTimeout,
+          userAgent: userAgent);
+    } else {
+      options = ChannelOptions(
+          credentials: const ChannelCredentials.insecure(),
+          connectionTimeout: connectionTimeout,
+          idleTimeout: idleTimeout,
+          userAgent: userAgent);
+    }
+
     _channel = ClientChannel(address, port: port, options: options);
     _stub = GreeterClient(_channel,
         options: CallOptions(timeout: Duration(seconds: 1)));
@@ -33,11 +58,11 @@ class HelloWorld {
     _channel = null;
   }
 
-  Future<HelloReply> sayHello(String name){
+  Future<HelloReply> sayHello(String name) {
     return _stub.sayHello(HelloRequest()..name = name);
   }
 
-  Future<void> ping(){
+  Future<void> ping() {
     return _stub.ping(Empty());
   }
 }
