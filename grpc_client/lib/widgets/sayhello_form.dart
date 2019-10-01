@@ -6,10 +6,8 @@
 */
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grpc_client/bloc/app.dart';
-import 'package:grpc_client/providers/defaults.dart';
 
 /////////////////////////////////////////////////////////////////////
 

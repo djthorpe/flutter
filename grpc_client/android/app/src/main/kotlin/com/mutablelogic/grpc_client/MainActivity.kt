@@ -1,4 +1,4 @@
-package com.example.reviewapp
+package com.mutablelogic.grpc_client
 
 import android.os.Bundle
 

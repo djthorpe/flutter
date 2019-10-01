@@ -1,4 +1,4 @@
-package com.example.gprc_client
+package com.mutablelogic.reviewapp
 
 import android.os.Bundle
 
