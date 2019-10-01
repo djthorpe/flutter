@@ -26,11 +26,12 @@ class AppEventStart extends AppEvent {
 class AppEventConnect extends AppEvent {
   final String hostName;
   final int portNumber;
+  final bool secure;
 
-  AppEventConnect(this.hostName,this.portNumber) : super();
+  AppEventConnect(this.hostName,this.portNumber,this.secure) : super();
 
   @override
-  String toString() => 'AppEventConnect($hostName:$portNumber)';
+  String toString() => 'AppEventConnect($hostName:$portNumber secure=$secure)';
 }
 
 class AppEventConnectError extends AppEvent {
@@ -113,7 +114,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     if (event is AppEventConnect) {
       yield AppStateConnect(ConnectState.Connecting,defaults: _defaults);
       try {
-        await _helloworld.connect(event.hostName,event.portNumber);
+        await _helloworld.connect(event.hostName,event.portNumber,secure: event.secure);
         yield AppStateStarted();
       } catch(e) {
         yield AppStateConnect(ConnectState.Error,exception: e,defaults: _defaults);
