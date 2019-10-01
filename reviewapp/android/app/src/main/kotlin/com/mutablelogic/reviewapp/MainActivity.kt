@@ -1,4 +1,4 @@
-package com.example.reviewapp
+package com.mutablelogic.reviewapp
 
 import android.os.Bundle
 
