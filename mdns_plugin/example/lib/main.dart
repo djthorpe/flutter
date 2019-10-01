@@ -12,28 +12,32 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppDelegate implements MDNSPluginDelegate {
-
   void onDiscoveryStarted() {
-      print("Discovery started");
+    print("Discovery started");
   }
+
   void onDiscoveryStopped() {
-      print("Discovery stopped");
+    print("Discovery stopped");
   }
+
   void onServiceFound(MDNSService service) {
-      print("Found: $service");
+    print("Found: $service");
   }
+
   void onServiceResolved(MDNSService service) {
-      print("Resolved: $service");
+    print("Resolved: $service");
   }
+
   void onServiceUpdated(MDNSService service) {
-      print("Updated: $service");
+    print("Updated: $service");
   }
+
   void onServiceRemoved(MDNSService service) {
-      print("Removed: $service");
+    print("Removed: $service");
   }
 }
 
-class _MyAppState extends State<MyApp>  {
+class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   MDNSPlugin _mdns = new MDNSPlugin(_MyAppDelegate());
 
@@ -44,7 +48,7 @@ class _MyAppState extends State<MyApp>  {
     startDiscovery();
   }
 
-  void startDiscovery() {      
+  void startDiscovery() {
     _mdns.startDiscovery("_googlecast._tcp").then((_) {
       print("Discovery started");
     });
