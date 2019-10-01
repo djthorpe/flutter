@@ -1,6 +1,6 @@
 name: mdns_plugin
-description: A new flutter plugin project.
-version: 0.0.1
+description: mDNS Service discovery
+version: 0.0.2
 author: David Thorpe <djt@mutablelogic.com>
 homepage: http://github.com/djthorpe/flutter/
 
