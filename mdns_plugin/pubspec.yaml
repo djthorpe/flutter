@@ -1,0 +1,21 @@
+name: mdns_plugin
+description: A new flutter plugin project.
+version: 0.0.1
+author: David Thorpe <djt@mutablelogic.com>
+homepage: http://github.com/djthorpe/flutter/
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    androidPackage: com.mutablelogic.mdns_plugin
+    pluginClass: MDNSPlugin
