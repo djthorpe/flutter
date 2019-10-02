@@ -1,16 +1,17 @@
 # mdns_plugin_example
 
-Demonstrates how to use the mdns_plugin plugin.
+This example application demonstrates how to use the mdns_plugin plugin. It
+generates a list of services which are presented as a ListView:
 
-## Getting Started
+<img src="https://raw.githubusercontent.com/djthorpe/flutter/master/mdns_plugin/example/etc/screenshot.png" style="width:50%" >
 
-This project is a starting point for a Flutter application.
+See the code in the `example/lib` folder:
 
-A few resources to get you started if this is your first Flutter project:
+  * The `bloc` folder contains the business logic of the application;
+  * The `models` folder contains the model for the list of services;
+  * The `pages` folder contains the StatelessWidget which renders the page;
+  * The `widgets` folder contains the widget to render a service as a list item;
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+The list is rebuilt based on delegate messages from the `MDNSPlugin` object, which
+you can see in the `bloc/app.dart` business logic.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
