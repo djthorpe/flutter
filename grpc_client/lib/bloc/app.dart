@@ -7,6 +7,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:grpc_client/providers/helloworld.dart';
+import 'package:grpc_client/providers/reflection.dart';
 import 'package:grpc_client/providers/defaults.dart';
 
 /////////////////////////////////////////////////////////////////////
@@ -97,11 +98,11 @@ class AppStateStarted extends AppState {
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   final HelloWorld _helloworld = HelloWorld();
+  final ReflectionClient _reflection = ReflectionClient();
   final Defaults _defaults = Defaults();
 
   @override
   Stream<AppState> mapEventToState(AppEvent event) async* {
-
     // Set state to disconnected on start
     if (event is AppEventStart) {
       // Load in preferences
@@ -115,6 +116,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       yield AppStateConnect(ConnectState.Connecting,defaults: _defaults);
       try {
         await _helloworld.connect(event.hostName,event.portNumber,secure: event.secure);
+        await _reflection.connect(event.hostName,event.portNumber,secure: event.secure);
         yield AppStateStarted();
       } catch(e) {
         yield AppStateConnect(ConnectState.Error,exception: e,defaults: _defaults);
@@ -146,4 +148,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   // Getters and setters
   @override
   AppState get initialState => AppStateUninitialized();
+
+  List<String> get services => _reflection.services;
+  String get hostName => _defaults.hostName;
+  int get portNumber => _defaults.portNumber;
 }
