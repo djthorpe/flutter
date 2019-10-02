@@ -31,6 +31,7 @@ class MDNSService {
   Map get txt => map["txt"];
   List<String> get addresses {
     var addresses = map["address"];
+
     if (addresses is List<dynamic>) {
       var address = List<String>();
       addresses.forEach((value) {
@@ -47,7 +48,11 @@ class MDNSService {
   // METHODS ////////////////////////////////////////////////////////
 
   static String toUTF8String(List<int> bytes) {
-    return Utf8Codec().decode(bytes);
+    if(bytes == null) {
+      return null;
+    } else {
+      return Utf8Codec().decode(bytes);
+    }
   }
 
   String toString() {

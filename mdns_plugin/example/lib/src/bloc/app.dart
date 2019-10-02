@@ -16,7 +16,7 @@ import 'package:mdns_plugin_example/src/models/service_list.dart';
 // EVENT
 
 enum AppEventDiscoveryState {
-  Started, Stopped
+  Started, Stopped, Restart
 }
 
 enum AppEventServiceState {
@@ -60,6 +60,10 @@ class AppEventService extends AppEvent {
 /////////////////////////////////////////////////////////////////////
 // STATE
 
+enum AppStateAction {
+  ShowToast
+}
+
 abstract class AppState {}
 
 class AppStateUninitialized extends AppState {
@@ -75,21 +79,23 @@ class AppStarted extends AppState {
 class AppUpdated extends AppState {
   ServiceList services;
   MDNSService service;
+  AppStateAction action;
 
   // CONSTRUCTOR ////////////////////////////////////////////////////
 
-  AppUpdated(this.services,{this.service});
+  AppUpdated(this.services,{this.service,this.action});
 
   // GETTERS AND SETTERS ////////////////////////////////////////////
 
   @override
-  String toString() => 'AppUpdated($service)';
+  String toString() => 'AppUpdated($service,$action)';
 }
 
 /////////////////////////////////////////////////////////////////////
 // BLOC
 
 class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
+  final String serviceType = "_googlecast._tcp";
   MDNSPlugin _mdns;
   ServiceList _services = ServiceList();
 
@@ -100,13 +106,19 @@ class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
     if(event is AppEventStart) {
       // Start discovery
       _mdns = MDNSPlugin(this);
-      await _mdns.startDiscovery("_googlecast._tcp");
+      _mdns.startDiscovery(serviceType);
     }
 
     if(event is AppEventDiscovery) {
       // Remove all services and update the application
       _services.removeAll();
-      yield AppUpdated(_services);
+      // If restart then call discovery again
+      if(event.state == AppEventDiscoveryState.Restart) {
+        _mdns.startDiscovery(serviceType);
+        yield AppUpdated(_services,action: AppStateAction.ShowToast);
+      } else {
+        yield AppUpdated(_services);
+      }
     }
 
     if(event is AppEventService) {

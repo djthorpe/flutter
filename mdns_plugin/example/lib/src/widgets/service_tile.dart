@@ -41,6 +41,20 @@ class ServiceTile extends StatelessWidget {
         case "Chromecast Audio":
           iconData = Icons.audiotrack;
           break;
+        case "Google Home":
+        case "Google Home Mini":
+          iconData = Icons.home;
+          break;
+        case "Chromecast":
+          iconData = Icons.tv;
+          break;
+        case "Google Cast Group":
+          iconData = Icons.speaker_group;
+          break;
+        case "":          
+          break;
+        default:
+          print("TODO: Add icon for $_chromecastModel");
       }
       if(_chromecastState > 0) {
         iconColor = Colors.green;
@@ -52,8 +66,8 @@ class ServiceTile extends StatelessWidget {
   String get _title => _isChromecast ? _chromecastName : service.name;
   String get _subtitle => _isChromecast ? _chromecastApp : "${service.hostName}:${service.port}";
   bool get _isChromecast => (service.serviceType == "_googlecast._tcp.");
-  String get _chromecastName => MDNSService.toUTF8String(service.txt["fn"]);
-  String get _chromecastModel => MDNSService.toUTF8String(service.txt["md"]);
-  String get _chromecastApp => MDNSService.toUTF8String(service.txt["rs"]);
-  int get _chromecastState => int.parse(MDNSService.toUTF8String(service.txt["st"]));
+  String get _chromecastName => MDNSService.toUTF8String(service.txt["fn"]) ?? "";
+  String get _chromecastModel => MDNSService.toUTF8String(service.txt["md"]) ?? "";
+  String get _chromecastApp => MDNSService.toUTF8String(service.txt["rs"]) ?? "";
+  int get _chromecastState => int.parse(MDNSService.toUTF8String(service.txt["st"]) ?? "0");
 }

@@ -19,23 +19,52 @@ class ServiceList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: listWidget(context),
-      ),
-    );
+      body: BlocListener<AppBloc, AppState>(
+        listener: (context, state) {
+          if(state is AppUpdated && state.action == AppStateAction.ShowToast) {
+            Scaffold.of(context).showSnackBar(snackBarWithText("Rescanning"));
+          }
+        },
+        child: Column(children: <Widget>[infoWidget(context),listWidget(context)])
+      )
+    );    
+  }
+
+  Widget snackBarWithText(String text) {
+    return SnackBar(content: Text(text),duration: Duration(seconds: 1));
   }
 
   Widget listWidget(BuildContext context) => BlocBuilder(
       bloc: BlocProvider.of<AppBloc>(context),
       builder: (BuildContext context, AppState state) {
-        if (state is AppUpdated) {
-          return ListView.builder(
+        if (state is AppUpdated && state.services.count > 0) {
+          return Expanded(
+            child: ListView.builder(
               itemCount: state.services.count,
-              itemBuilder: (BuildContext context, int index) {
-                return ServiceTile(state.services.itemAtIndex(index));
-              });
+              itemBuilder: (BuildContext context, int index) => ServiceTile(state.services.itemAtIndex(index))
+          ));
         } else {
-          return Placeholder();
+          return Expanded(child: Center(child: Text("No Chromecasts Found")));
         }
+      });
+
+  Widget infoWidget(BuildContext context) => BlocBuilder(
+      bloc: BlocProvider.of<AppBloc>(context),
+      builder: (BuildContext context, AppState state) {
+        final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+        return Card(
+            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+          ListTile(
+            title: Text('FOUND CHROMECASTS'),
+            subtitle: Text("The following devices were found on your local network")
+          ),
+          ButtonTheme.bar(
+              child: ButtonBar(children: <Widget>[
+            FlatButton(
+              child: const Text('RESCAN'),
+              onPressed: () => appBloc.dispatch(AppEventDiscovery(AppEventDiscoveryState.Restart))
+            )
+          ]))
+        ]));
       });
 }
