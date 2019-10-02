@@ -1,6 +1,8 @@
 name: mdns_plugin
-description: mDNS Service discovery
-version: 0.0.4
+description: 
+  mDNS Service discovery plugin for iOS which generates events 
+  based on discovery of services on the local network.
+version: 0.0.6
 author: David Thorpe <djt@mutablelogic.com>
 homepage: https://github.com/djthorpe/flutter/
 

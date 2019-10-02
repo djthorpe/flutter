@@ -1,6 +1,6 @@
 name: mdns_plugin_example
 description: Demonstrates how to use the mdns_plugin plugin.
-version: 1.0.0
+version: 0.0.6
 publish_to: 'none'
 
 environment:

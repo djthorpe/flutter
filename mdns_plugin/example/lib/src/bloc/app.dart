@@ -15,13 +15,9 @@ import 'package:mdns_plugin_example/src/models/service_list.dart';
 /////////////////////////////////////////////////////////////////////
 // EVENT
 
-enum AppEventDiscoveryState {
-  Started, Stopped, Restart
-}
+enum AppEventDiscoveryState { Started, Stopped, Restart }
 
-enum AppEventServiceState {
-  Found, Resolved, Updated, Removed
-}
+enum AppEventServiceState { Found, Resolved, Updated, Removed }
 
 abstract class AppEvent {}
 
@@ -49,7 +45,7 @@ class AppEventService extends AppEvent {
 
   // CONSTRUCTOR ////////////////////////////////////////////////////
 
-  AppEventService(this.state,this.service);
+  AppEventService(this.state, this.service);
 
   // GETTERS AND SETTERS ////////////////////////////////////////////
 
@@ -60,9 +56,7 @@ class AppEventService extends AppEvent {
 /////////////////////////////////////////////////////////////////////
 // STATE
 
-enum AppStateAction {
-  ShowToast
-}
+enum AppStateAction { ShowToast }
 
 abstract class AppState {}
 
@@ -83,7 +77,7 @@ class AppUpdated extends AppState {
 
   // CONSTRUCTOR ////////////////////////////////////////////////////
 
-  AppUpdated(this.services,{this.service,this.action});
+  AppUpdated(this.services, {this.service, this.action});
 
   // GETTERS AND SETTERS ////////////////////////////////////////////
 
@@ -103,26 +97,26 @@ class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
 
   @override
   Stream<AppState> mapEventToState(AppEvent event) async* {
-    if(event is AppEventStart) {
+    if (event is AppEventStart) {
       // Start discovery
       _mdns = MDNSPlugin(this);
       _mdns.startDiscovery(serviceType);
     }
 
-    if(event is AppEventDiscovery) {
+    if (event is AppEventDiscovery) {
       // Remove all services and update the application
       _services.removeAll();
       // If restart then call discovery again
-      if(event.state == AppEventDiscoveryState.Restart) {
+      if (event.state == AppEventDiscoveryState.Restart) {
         _mdns.startDiscovery(serviceType);
-        yield AppUpdated(_services,action: AppStateAction.ShowToast);
+        yield AppUpdated(_services, action: AppStateAction.ShowToast);
       } else {
         yield AppUpdated(_services);
       }
     }
 
-    if(event is AppEventService) {
-      switch(event.state) {
+    if (event is AppEventService) {
+      switch (event.state) {
         case AppEventServiceState.Found:
           _services.add(event.service);
           break;
@@ -135,25 +129,28 @@ class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
         case AppEventServiceState.Removed:
           _services.remove(event.service);
           break;
-      }      
-      yield AppUpdated(_services,service: event.service);
+      }
+      yield AppUpdated(_services, service: event.service);
     }
-
-
   }
 
   // MDNS PLUGIN DELEGATE  //////////////////////////////////////////
 
-  void onDiscoveryStarted() => this.dispatch(AppEventDiscovery(AppEventDiscoveryState.Started));
-  void onDiscoveryStopped() => this.dispatch(AppEventDiscovery(AppEventDiscoveryState.Stopped));
-  void onServiceFound(MDNSService service) => this.dispatch(AppEventService(AppEventServiceState.Found,service)); 
-  void onServiceResolved(MDNSService service) => this.dispatch(AppEventService(AppEventServiceState.Resolved,service)); 
-  void onServiceUpdated(MDNSService service)  => this.dispatch(AppEventService(AppEventServiceState.Updated,service)); 
-  void onServiceRemoved(MDNSService service)  => this.dispatch(AppEventService(AppEventServiceState.Removed,service)); 
+  void onDiscoveryStarted() =>
+      this.dispatch(AppEventDiscovery(AppEventDiscoveryState.Started));
+  void onDiscoveryStopped() =>
+      this.dispatch(AppEventDiscovery(AppEventDiscoveryState.Stopped));
+  void onServiceFound(MDNSService service) =>
+      this.dispatch(AppEventService(AppEventServiceState.Found, service));
+  void onServiceResolved(MDNSService service) =>
+      this.dispatch(AppEventService(AppEventServiceState.Resolved, service));
+  void onServiceUpdated(MDNSService service) =>
+      this.dispatch(AppEventService(AppEventServiceState.Updated, service));
+  void onServiceRemoved(MDNSService service) =>
+      this.dispatch(AppEventService(AppEventServiceState.Removed, service));
 
   // GETTERS AND SETTERS ////////////////////////////////////////////
 
   @override
   AppState get initialState => AppStateUninitialized();
 }
-

@@ -48,7 +48,7 @@ class MDNSService {
   // METHODS ////////////////////////////////////////////////////////
 
   static String toUTF8String(List<int> bytes) {
-    if(bytes == null) {
+    if (bytes == null) {
       return null;
     } else {
       return Utf8Codec().decode(bytes);

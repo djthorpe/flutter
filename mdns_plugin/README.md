@@ -29,6 +29,12 @@ void startDiscovery() {
     });
 }
 
+void stopDiscovery() {      
+    _mdns.stopDiscovery().then((_) {
+        print("Discovery stopped");
+    });
+}
+
 Future sleep() {
   return new Future.delayed(const Duration(seconds: 5), () => "5");
 }
@@ -54,4 +60,22 @@ class Delegate implements MDNSPluginDelegate {
   }
 }
 ```
+
+For a fuller example please see the `example` folder.
+
+## Publishing this plugin
+
+(Some notes for me) In order to publish the plugin, edit 
+the `pubspec.yaml` files in the root directory and 
+the `example` directory to bump the version number $TAG 
+and then run the following commands:
+
+```bash
+bash% flutter format .
+bash% git commit -a -m "Updated version"
+bash% git push && git tag $TAG && git push --tags
+bash% flutter pub pub publish
+```
+
+You should then merge `v1` into the `master` branch
 

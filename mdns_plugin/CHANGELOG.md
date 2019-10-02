@@ -18,5 +18,8 @@ implements the `addresses` property on `MDNSService`. Remaining items to do:
 
   * Implement the Android version
 
+## 0.0.5
+
+Updated the example code.
 
 

@@ -24,11 +24,10 @@ class ServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: EdgeInsets.only(left: 10.0,right: 10.0),
-      leading: _icon,
-      title: Text(_title),
-      subtitle: Text(_subtitle)
-    );
+        contentPadding: EdgeInsets.only(left: 10.0, right: 10.0),
+        leading: _icon,
+        title: Text(_title),
+        subtitle: Text(_subtitle));
   }
 
   // PROPERTIES /////////////////////////////////////////////////////
@@ -36,8 +35,8 @@ class ServiceTile extends StatelessWidget {
   Widget get _icon {
     var iconData = Icons.computer;
     var iconColor = Colors.black;
-    if(_isChromecast) {
-      switch(_chromecastModel) {
+    if (_isChromecast) {
+      switch (_chromecastModel) {
         case "Chromecast Audio":
           iconData = Icons.audiotrack;
           break;
@@ -51,23 +50,28 @@ class ServiceTile extends StatelessWidget {
         case "Google Cast Group":
           iconData = Icons.speaker_group;
           break;
-        case "":          
+        case "":
           break;
         default:
           print("TODO: Add icon for $_chromecastModel");
       }
-      if(_chromecastState > 0) {
+      if (_chromecastState > 0) {
         iconColor = Colors.green;
       }
     }
-    return Icon(iconData,color:iconColor ,size: 36.0);
+    return Icon(iconData, color: iconColor, size: 36.0);
   }
 
   String get _title => _isChromecast ? _chromecastName : service.name;
-  String get _subtitle => _isChromecast ? _chromecastApp : "${service.hostName}:${service.port}";
+  String get _subtitle =>
+      _isChromecast ? _chromecastApp : "${service.hostName}:${service.port}";
   bool get _isChromecast => (service.serviceType == "_googlecast._tcp.");
-  String get _chromecastName => MDNSService.toUTF8String(service.txt["fn"]) ?? "";
-  String get _chromecastModel => MDNSService.toUTF8String(service.txt["md"]) ?? "";
-  String get _chromecastApp => MDNSService.toUTF8String(service.txt["rs"]) ?? "";
-  int get _chromecastState => int.parse(MDNSService.toUTF8String(service.txt["st"]) ?? "0");
+  String get _chromecastName =>
+      MDNSService.toUTF8String(service.txt["fn"]) ?? "";
+  String get _chromecastModel =>
+      MDNSService.toUTF8String(service.txt["md"]) ?? "";
+  String get _chromecastApp =>
+      MDNSService.toUTF8String(service.txt["rs"]) ?? "";
+  int get _chromecastState =>
+      int.parse(MDNSService.toUTF8String(service.txt["st"]) ?? "0");
 }

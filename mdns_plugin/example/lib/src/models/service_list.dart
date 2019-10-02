@@ -62,5 +62,4 @@ class ServiceList {
   MDNSService itemAtIndex(int index) => _list[index];
 
   int get count => _list.length;
-
 }
