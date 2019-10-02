@@ -11,5 +11,12 @@ Remaining items to do:
   * Implment the `addresses` property on `MDNSService`
   * Implement the Android version
 
+## 0.0.4
+
+Now allows `domain` argument when calling `startDiscovery` and
+implements the `addresses` property on `MDNSService`. Remaining items to do:
+
+  * Implement the Android version
+
 
 

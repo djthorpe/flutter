@@ -1,58 +1,54 @@
-import 'package:flutter/material.dart';
+/*
+  mDNS Plugin Example
+  Flutter client demonstrating browsing for Chromecasts
+  on your local network
+
+  Copyright (c) David Thorpe 2019
+  Please see the LICENSE file for licensing information
+*/
+
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mdns_plugin/mdns_plugin.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() => runApp(MyApp());
+import 'package:mdns_plugin/mdns_plugin.dart';
+import 'package:mdns_plugin_example/src/pages/service_list.dart';
+import 'package:mdns_plugin_example/src/bloc/app.dart';
+
+/////////////////////////////////////////////////////////////////////
+
+void main() {
+  runApp(BlocProvider<AppBloc>(
+      builder: (context) {
+        return AppBloc()..dispatch(AppEventStart());
+      },
+      child: MyApp()));
+}
+
+/////////////////////////////////////////////////////////////////////
 
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppDelegate implements MDNSPluginDelegate {
-
-  void onDiscoveryStarted() {
-      print("Discovery started");
-  }
-  void onDiscoveryStopped() {
-      print("Discovery stopped");
-  }
-  void onServiceFound(MDNSService service) {
-      print("Found: $service");
-  }
-  void onServiceResolved(MDNSService service) {
-      print("Resolved: $service");
-  }
-  void onServiceUpdated(MDNSService service) {
-      print("Updated: $service");
-  }
-  void onServiceRemoved(MDNSService service) {
-      print("Removed: $service");
-  }
-}
-
-class _MyAppState extends State<MyApp>  {
+class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  MDNSPlugin _mdns = new MDNSPlugin(_MyAppDelegate());
+
+  // CONSTRUCTORS ///////////////////////////////////////////////////
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
-    startDiscovery();
   }
 
-  void startDiscovery() {      
-    _mdns.startDiscovery("_googlecast._tcp").then((_) {
-      print("Discovery started");
-    });
-  }
+  // METHODS ////////////////////////////////////////////////////////
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     String platformVersion;
+
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       platformVersion = await MDNSPlugin.platformVersion;
@@ -73,14 +69,17 @@ class _MyAppState extends State<MyApp>  {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
-        ),
-      ),
-    );
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+            appBar: AppBar(
+              title: const Text('Chromecast Browser'),
+            ),
+            body: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
+              if (state is AppStateUninitialized) {
+                return Placeholder();
+              } else {
+                return ServiceList();
+              }
+            })));
   }
 }

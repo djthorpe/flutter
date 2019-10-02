@@ -7,6 +7,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 class MDNSPlugin: MethodCallHandler {
+
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
@@ -18,6 +19,12 @@ class MDNSPlugin: MethodCallHandler {
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (call.method == "getPlatformVersion") {
       result.success("Android ${android.os.Build.VERSION.RELEASE}")
+    } else if (call.method == "startDiscovery") {
+      // TODO
+      result.success(null);
+    } else if (call.method == "stopDiscovery") {
+      // TODO
+      result.success(null);
     } else {
       result.notImplemented()
     }
