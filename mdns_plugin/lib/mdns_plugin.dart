@@ -118,14 +118,11 @@ class MDNSPlugin {
   // METHODS ////////////////////////////////////////////////////////
 
   static Future<String> get platformVersion async {
-    final String version =
-        await _methodChannel.invokeMethod('getPlatformVersion');
-    return version;
+    return await _methodChannel.invokeMethod('getPlatformVersion');
   }
 
-  Future<void> startDiscovery(String serviceType, {String domain}) async {
-    return await _methodChannel.invokeMethod(
-        "startDiscovery", {"serviceType": serviceType, "domain": domain});
+  Future<void> startDiscovery(String serviceType) async {
+    return await _methodChannel.invokeMethod("startDiscovery", {"serviceType": serviceType});
   }
 
   Future<void> stopDiscovery() async {

@@ -13,12 +13,14 @@ import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.util.Log
 import android.app.Activity
+import java.util.Timer
+import kotlin.concurrent.schedule
 
 class MDNSPlugin : MethodCallHandler,StreamHandler {
   var nsdManager: NsdManager? = null
   var sink: EventSink? = null
   var activity: Activity? = null
-  private var discoveryListener: DiscoveryListener? = null
+  var discoveryListener: DiscoveryListener? = null
 
   companion object {
     @JvmStatic
@@ -100,7 +102,16 @@ class ResolveListener(val plugin: MDNSPlugin) : NsdManager.ResolveListener {
       })
     }  
     override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
-      Log.d("MDNSPlugin", "onResolveFailed: $serviceInfo: $errorCode")
+      when (errorCode) {
+        NsdManager.FAILURE_ALREADY_ACTIVE -> {
+          // Resolve again after a short delay
+          Timer("resolve", false).schedule(20) { 
+            plugin.discoveryListener?.onServiceFound(serviceInfo)
+          }
+        }
+        else ->
+          Log.d("MDNSPlugin", "onResolveFailed: Error $errorCode: $serviceInfo")
+      }
     }
 }
 

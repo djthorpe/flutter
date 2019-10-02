@@ -55,6 +55,13 @@ Further work on the Android code, the remaining issues are:
   * Implement some sort up update method on Android for when TXT records are updated
   * On Android, Lazy resolve service info instead of all at once (queue)
 
+## 1.0.0
+
+First v1 release includes the iOS and Android, the remaining issue is that
+when TXT records are updated, the onServiceUpdated callback is not called
+on the Android platform, since the in-built libraries don't have this
+functionality available.
+
 
 
 
