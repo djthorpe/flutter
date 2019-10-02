@@ -40,7 +40,6 @@ jobs:
             echo 'export PATH=$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin' >> $BASH_ENV
             source $BASH_ENV
             cd ~/project/reviewapp && flutter test
-            cd ~/project/mdns_browser && flutter test
             cd ~/project/grpc_client && flutter test
 
       - run:
@@ -49,14 +48,10 @@ jobs:
             echo 'export PATH=$PATH:$HOME/sdks/protoc/bin:$HOME/.pub-cache/bin' >> $BASH_ENV
             source $BASH_ENV
             cd ~/project/reviewapp && flutter build apk 
-            cd ~/project/mdns_browser && flutter build apk
             cd ~/project/grpc_client && flutter build apk
 
       - store_artifacts:
           path: reviewapp/build/app/outputs/apk/release/app-release.apk
-
-      - store_artifacts:
-          path: mdns_browser/build/app/outputs/apk/release/app-release.apk
 
       - store_artifacts:
           path: grpc_client/build/app/outputs/apk/release/app-release.apk

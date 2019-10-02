@@ -22,4 +22,7 @@ implements the `addresses` property on `MDNSService`. Remaining items to do:
 
 Updated the example code.
 
+## 0.0.6
+
+Formatting changes
 
