@@ -62,9 +62,11 @@ class ServiceTile extends StatelessWidget {
     return Icon(iconData, color: iconColor, size: 36.0);
   }
 
-  String get _title => _isChromecast ? _chromecastName : service.name;
+  String get _title => _isChromecast && _chromecastName.length > 0
+      ? _chromecastName
+      : service.name;
   String get _subtitle =>
-      _isChromecast ? _chromecastApp : "${service.hostName}:${service.port}";
+      _isChromecast && _chromecastName.length > 0 ? _chromecastApp : _hostName;
   bool get _isChromecast => (service.serviceType == "_googlecast._tcp.");
   String get _chromecastName =>
       MDNSService.toUTF8String(service.txt["fn"]) ?? "";
@@ -72,6 +74,9 @@ class ServiceTile extends StatelessWidget {
       MDNSService.toUTF8String(service.txt["md"]) ?? "";
   String get _chromecastApp =>
       MDNSService.toUTF8String(service.txt["rs"]) ?? "";
+  String get _hostName => service.hostName.length > 0 && service.port > 0
+      ? "${service.hostName}:${service.port}"
+      : "";
   int get _chromecastState =>
       int.parse(MDNSService.toUTF8String(service.txt["st"]) ?? "0");
 }
