@@ -29,6 +29,12 @@ void startDiscovery() {
     });
 }
 
+void stopDiscovery() {      
+    _mdns.stopDiscovery().then((_) {
+        print("Discovery stopped");
+    });
+}
+
 Future sleep() {
   return new Future.delayed(const Duration(seconds: 5), () => "5");
 }
@@ -54,4 +60,6 @@ class Delegate implements MDNSPluginDelegate {
   }
 }
 ```
+
+For a fuller example please see the `example` folder.
 
