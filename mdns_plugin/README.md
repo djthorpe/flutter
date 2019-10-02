@@ -72,7 +72,7 @@ and then run the following commands:
 
 ```bash
 bash% flutter format .
-bash% git commit -a -m "Updated version"
+bash% git commit -a -m "Updated version to $TAG"
 bash% git push && git tag $TAG && git push --tags
 bash% flutter pub pub publish
 ```
