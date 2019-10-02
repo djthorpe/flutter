@@ -8,29 +8,64 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import android.app.Activity
+import android.content.Context
+import android.net.nsd.NsdManager
+import android.net.nsd.NsdServiceInfo
 import android.util.Log
+import android.app.Activity
 
-class MDNSPlugin(registrar: Registrar): MethodCallHandler, StreamHandler {
+class MDNSPlugin : MethodCallHandler,StreamHandler {
+  private var nsdManager: NsdManager? = null
   private var sink: EventSink? = null
+  private var activity: Activity? = null
 
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
-      val plugin = MDNSPlugin(registrar)
-
-      val method_channel = MethodChannel(registrar.messenger(), "mdns_plugin")
-      method_channel.setMethodCallHandler(plugin)
-      
-      val event_channel = EventChannel(registrar.messenger(), "mdns_plugin_delegate")
-      event_channel.setStreamHandler(plugin)
+      MethodChannel(registrar.messenger(), "mdns_plugin").setMethodCallHandler(MDNSPlugin(registrar))      
     }
   }
 
-  init {
-    registrar.addViewDestroyListener {
-      onCancel(null)
-      false
+  constructor(registrar: Registrar) {
+    nsdManager = registrar.activity().getSystemService(Context.NSD_SERVICE) as NsdManager
+    activity = registrar.activity()
+    EventChannel(registrar.messenger(), "mdns_plugin_delegate").setStreamHandler(this)
+  }
+
+  val discoveryListener: NsdManager.DiscoveryListener =  object : NsdManager.DiscoveryListener {
+    override fun onDiscoveryStarted(serviceType: String?) {
+      this@MDNSPlugin.activity?.runOnUiThread(java.lang.Runnable {
+        this@MDNSPlugin.sink?.success(mapOf("method" to "onDiscoveryStarted"))
+      })
+    }
+    override fun onDiscoveryStopped(serviceType: String) {
+      this@MDNSPlugin.activity?.runOnUiThread(java.lang.Runnable {
+        this@MDNSPlugin.sink?.success(mapOf("method" to "onDiscoveryStopped"))
+      })
+    }
+    override fun onServiceFound(serviceInfo: NsdServiceInfo?) {
+      serviceInfo?.let {
+        this@MDNSPlugin.nsdManager?.resolveService(serviceInfo,ResolveListener());
+        this@MDNSPlugin.activity?.runOnUiThread(java.lang.Runnable {
+          // TODO - make argument map
+          this@MDNSPlugin.sink?.success(mapOf("method" to "onServiceFound","name" to serviceInfo?.getServiceName()))
+        })
+      }
+    }
+    override fun onServiceLost(serviceInfo: NsdServiceInfo?) {
+      serviceInfo?.let {
+        this@MDNSPlugin.nsdManager?.resolveService(serviceInfo,ResolveListener());
+        this@MDNSPlugin.activity?.runOnUiThread(java.lang.Runnable {
+          // TODO - make argument map
+          this@MDNSPlugin.sink?.success(mapOf("method" to "onServiceRemoved","name" to serviceInfo?.getServiceName()))
+        })
+      }
+    }
+    override fun onStartDiscoveryFailed(serviceType: String?, errorCode: Int) {
+      Log.d("MDNSPlugin", "onStartDiscoveryFailed: $serviceType: $errorCode")
+    }
+    override fun onStopDiscoveryFailed(serviceType: String?, errorCode: Int) {
+      Log.d("MDNSPlugin", "onStopDiscoveryFailed: $serviceType: $errorCode")
     }
   }
 
@@ -51,10 +86,8 @@ class MDNSPlugin(registrar: Registrar): MethodCallHandler, StreamHandler {
     }
   }
 
-  override fun onListen(p0: Any?, sink: EventSink) {
-    if (this.sink == null) {
-      this.sink = sink
-    }
+  override fun onListen(p0: Any?, sink: EventSink) {   
+    this.sink = sink
   }
 
   override fun onCancel(p0: Any?) {
@@ -62,13 +95,23 @@ class MDNSPlugin(registrar: Registrar): MethodCallHandler, StreamHandler {
   }
 
   private fun startDiscovery(result: Result) {
-    this.sink?.success(mapOf("method" to "onDiscoveryStarted"))
+    nsdManager?.discoverServices("_googlecast._tcp", NsdManager.PROTOCOL_DNS_SD, discoveryListener)
     result.success(null);
   }
 
   private fun stopDiscovery(result: Result) {
-    this.sink?.success(mapOf("method" to "onDiscoveryStopped"))
+    nsdManager?.stopServiceDiscovery(discoveryListener)
     result.success(null);
   }
+
+}
+
+class ResolveListener : NsdManager.ResolveListener {
+    override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
+      Log.d("MDNSPlugin", "onServiceResolved: $serviceInfo")
+    }  
+    override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+      Log.d("MDNSPlugin", "onResolveFailed: $serviceInfo: $errorCode")
+    }
 }
 
