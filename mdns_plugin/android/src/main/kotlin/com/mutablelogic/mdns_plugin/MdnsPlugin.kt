@@ -16,13 +16,28 @@ import android.app.Activity
 
 class MDNSPlugin : MethodCallHandler,StreamHandler {
   private var nsdManager: NsdManager? = null
-  private var sink: EventSink? = null
-  private var activity: Activity? = null
+  private var started: Boolean = false
+  var sink: EventSink? = null
+  var activity: Activity? = null
 
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
       MethodChannel(registrar.messenger(), "mdns_plugin").setMethodCallHandler(MDNSPlugin(registrar))      
+    }
+
+    fun mapFromServiceInfo(method: String,serviceInfo: NsdServiceInfo?):HashMap<String,Any> {
+      val map = HashMap<String, Any>()
+      map["method"] = method
+      serviceInfo?.let {
+        map["name"] = serviceInfo.getServiceName()
+        map["type"] = serviceInfo.getServiceType().removePrefix(".").removeSuffix(".") + "." // cleanup
+        map["hostName"] = serviceInfo.getHost()?.getHostName() ?: ""
+        map["port"] = serviceInfo.getPort()
+        map["txt"] = serviceInfo.getAttributes()
+        // TODO ADDRESSES
+      }
+      return map
     }
   }
 
@@ -45,19 +60,16 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
     }
     override fun onServiceFound(serviceInfo: NsdServiceInfo?) {
       serviceInfo?.let {
-        this@MDNSPlugin.nsdManager?.resolveService(serviceInfo,ResolveListener());
+        this@MDNSPlugin.nsdManager?.resolveService(serviceInfo,ResolveListener(this@MDNSPlugin));
         this@MDNSPlugin.activity?.runOnUiThread(java.lang.Runnable {
-          // TODO - make argument map
-          this@MDNSPlugin.sink?.success(mapOf("method" to "onServiceFound","name" to serviceInfo?.getServiceName()))
+          this@MDNSPlugin.sink?.success(mapFromServiceInfo("onServiceFound",serviceInfo))
         })
       }
     }
     override fun onServiceLost(serviceInfo: NsdServiceInfo?) {
       serviceInfo?.let {
-        this@MDNSPlugin.nsdManager?.resolveService(serviceInfo,ResolveListener());
         this@MDNSPlugin.activity?.runOnUiThread(java.lang.Runnable {
-          // TODO - make argument map
-          this@MDNSPlugin.sink?.success(mapOf("method" to "onServiceRemoved","name" to serviceInfo?.getServiceName()))
+          this@MDNSPlugin.sink?.success(mapFromServiceInfo("onServiceRemoved",serviceInfo))
         })
       }
     }
@@ -95,20 +107,28 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
   }
 
   private fun startDiscovery(result: Result) {
+    if(this.started == true) {
+      nsdManager?.stopServiceDiscovery(discoveryListener)
+    }
+    // TODO ALLOW FOR OTHER SERVICE TYPES
     nsdManager?.discoverServices("_googlecast._tcp", NsdManager.PROTOCOL_DNS_SD, discoveryListener)
+    this.started = true
     result.success(null);
   }
 
   private fun stopDiscovery(result: Result) {
     nsdManager?.stopServiceDiscovery(discoveryListener)
+    this.started = false
     result.success(null);
   }
-
 }
 
-class ResolveListener : NsdManager.ResolveListener {
+class ResolveListener(val plugin: MDNSPlugin) : NsdManager.ResolveListener {
     override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
-      Log.d("MDNSPlugin", "onServiceResolved: $serviceInfo")
+      var serviceInfo = MDNSPlugin.mapFromServiceInfo("onServiceResolved",serviceInfo)
+      plugin.activity?.runOnUiThread(java.lang.Runnable {
+        plugin.sink?.success(serviceInfo)
+      })
     }  
     override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
       Log.d("MDNSPlugin", "onResolveFailed: $serviceInfo: $errorCode")

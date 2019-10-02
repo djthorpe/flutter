@@ -34,3 +34,16 @@ to work correctly, but not yet return any services.
 ## 0.0.8
 
 Further work on the Android code, but quite a bit to do
+
+
+## 0.0.9
+
+Further work on the Android code, the remaining issues are:
+
+  * Pass through the serviceType onStartDiscovery
+  * Remove the domain to ensure parity between the iOS and Android implementations
+  * Extract the addresses from the ServiceInfo
+  * Implement some sort up update method on Android for when TXT records are updated?
+  * Android: Hot reloading doesn't work since the discoverylistener is still allocated
+
+
