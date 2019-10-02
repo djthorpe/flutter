@@ -71,6 +71,7 @@ the `example` directory to bump the version number $TAG
 and then run the following commands:
 
 ```bash
+bash% TAG=v`sed -n 's/version\: \(.*\)/\1/p' pubspec.yaml`
 bash% flutter format .
 bash% git commit -a -m "Updated version to $TAG"
 bash% git push && git tag $TAG && git push --tags
