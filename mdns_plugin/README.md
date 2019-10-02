@@ -6,6 +6,40 @@ work for iOS targets. Android targets are forthcoming.
 
 Please file any issues or feature requests on github, thanks.
 
+## Using the plugin
+
+You use the plugin by calling `startDiscovery` and `stopDiscovery` on an instance of `MDNSPlugin`, which
+you need to create by passing a delegate instance. That
+instance will receive messages from the plugin:
+
+```dart
+abstract class MDNSPluginDelegate {
+    // onDiscoveryStarted is called when discovery has started
+    void onDiscoveryStarted();
+
+    // onDiscoveryStopped is called when discovery has stopped
+    void onDiscoveryStopped();
+
+    // onServiceFound is called when a service is found, but
+    // before the service has been resolved
+    void onServiceFound(MDNSService service);
+
+    // onServiceResolved is called when a service is resolved
+    void onServiceResolved(MDNSService service);
+
+    // onServiceUpdated is called when an existing service
+    // has been updated
+    void onServiceUpdated(MDNSService service);
+
+    // onServiceUpdated is called when a service has been
+    // removed from the network
+    void onServiceRemoved(MDNSService service);
+}
+
+```
+
+A current limitation is that on Android, `onServiceUpdated` is currently not called. In addition, resolution is always done but the method `onServiceFound` should return a boolean indicating if resolution needs to be performed. Only service items which have been resolved should then update. This update will be done in the next version of the plugin.
+
 ## Example
 
 Here's a basic example which implements a delegate, that can respond to
