@@ -52,7 +52,9 @@ Further work on the Android code, the remaining issues are:
 Further work on the Android code, the remaining issues are:
 
   * Remove the domain to ensure parity between the iOS and Android implementations
-  * Implement some sort up update method on Android for when TXT records are updated?
+  * Implement some sort up update method on Android for when TXT records are updated
+  * On Android, Lazy resolve service info instead of all at once (queue)
+
 
 
 
