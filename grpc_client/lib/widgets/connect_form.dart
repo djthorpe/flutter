@@ -41,11 +41,11 @@ class _ConnectFormState extends State<ConnectForm> {
   }
 
   List<Widget> formFields(BuildContext context) => [
-      formFieldHost(context),
-      formFieldPort(context),
-      formFieldSecure(context),
-      formFieldAction(context)
-    ];
+        formFieldHost(context),
+        formFieldPort(context),
+        formFieldSecure(context),
+        formFieldAction(context)
+      ];
 
   formFieldHost(BuildContext context) => TextFormField(
           inputFormatters: [
@@ -60,11 +60,8 @@ class _ConnectFormState extends State<ConnectForm> {
             }
           },
           initialValue: defaults.hostName,
-          onSaved: (value) => {
-                setState(() {
-                  defaults.hostName = value;
-                })
-              },
+          onSaved: (value) => 
+          setState(() => defaults.hostName = value),
           decoration: const InputDecoration(
               icon: const Icon(Icons.computer),
               hintText: 'Hostname of remote service',
@@ -83,11 +80,8 @@ class _ConnectFormState extends State<ConnectForm> {
         }
       },
       initialValue: defaults.portNumber?.toString(),
-      onSaved: (value) => {
-            setState(() {
-              defaults.portNumber = int.parse(value);
-            })
-          },
+      onSaved: (value) =>
+          {setState(() => defaults.portNumber = int.parse(value))},
       decoration: const InputDecoration(
         icon: const Icon(Icons.power),
         hintText: 'Port of remote service',
@@ -95,15 +89,15 @@ class _ConnectFormState extends State<ConnectForm> {
       ));
 
   formFieldSecure(BuildContext context) => Container(
-        padding: const EdgeInsets.only(left: 22.0),
-        child: SwitchListTile(
-          title: const Text("Secure communication"),
-          subtitle: const Text("Use https"),
-          value: defaults.secure,
-          onChanged: (bool value) {
-            setState(() => defaults.secure = value);
-          },
-        ));
+      padding: const EdgeInsets.only(left: 22.0),
+      child: SwitchListTile(
+        title: const Text("Secure communication"),
+        subtitle: const Text("Use https"),
+        value: defaults.secure ?? true,
+        onChanged: (bool value) {
+          setState(() => defaults.secure = value);
+        },
+      ));
 
   formFieldAction(BuildContext context) {
     return Container(
@@ -121,6 +115,7 @@ class _ConnectFormState extends State<ConnectForm> {
 
   void action(BuildContext context) {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    appBloc.dispatch(AppEventConnect(defaults.hostName, defaults.portNumber,defaults.secure));
+    appBloc.dispatch(AppEventConnect(
+        defaults.hostName, defaults.portNumber, defaults.secure));
   }
 }

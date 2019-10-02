@@ -5,10 +5,10 @@
 	Please see the LICENSE file for licensing information
 */
 
+import 'dart:io';
 import 'package:grpc/grpc.dart';
 import 'google/protobuf/empty.pb.dart';
 import "helloworld.pbgrpc.dart";
-import 'dart:io';
 
 /////////////////////////////////////////////////////////////////////
 

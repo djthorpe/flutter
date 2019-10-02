@@ -10,17 +10,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 /////////////////////////////////////////////////////////////////////
 
 class Defaults {
-  String _hostName;
-  int _portNumber;
-  bool _secure;
+  String _hostName = "";
+  int _portNumber = 0;
+  bool _secure = true;
 
   // METHODS ////////////////////////////////////////////////////////
 
   loadAll() async {
     var prefs = await SharedPreferences.getInstance();
-    this._hostName = prefs.getString("hostName");
-    this._portNumber = prefs.getInt("portNumber");
-    this._secure = true;
+    try {
+      this._hostName = prefs.getString("hostName");
+      this._portNumber = prefs.getInt("portNumber");
+      this._secure = prefs.getBool("secure");
+    } catch(_) {
+      // Catch any errors with loading user preferences by clearing them out
+      await this.removeAll();
+    }
   }
 
   removeAll() {
@@ -28,6 +33,9 @@ class Defaults {
       prefs.remove("hostName");
       prefs.remove("portNumber");
       prefs.remove("secure");
+      hostName = "";
+      portNumber = 0;
+      secure = true;
     });
   }
 
@@ -53,7 +61,7 @@ class Defaults {
   set secure(bool value) {
     _secure = value;
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setInt("secure", _portNumber);
+      prefs.setBool("secure", _secure);
     });
   }
 }

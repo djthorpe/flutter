@@ -18,12 +18,30 @@ class DisconnectForm extends StatelessWidget {
           color: Theme.of(context).buttonColor,
           child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: <Widget>[cardTitle(context), actionBar(context)])));
+              children: <Widget>[cardTitle(context), listView(context), actionBar(context)])));
 
-  Widget cardTitle(BuildContext context) => const ListTile(
+  Widget cardTitle(BuildContext context) {
+    final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+    return ListTile(
         leading: Icon(Icons.computer),
-        title: Text('Connnected'),
+        title: Text("Connected to ${appBloc.hostName}:${appBloc.portNumber}")
       );
+  }
+
+  Widget listView(BuildContext context) { 
+    final AppBloc appBloc = BlocProvider.of<AppBloc>(context);   
+    return Container(
+      height: 200,
+      child: ListView.builder(
+      itemCount: appBloc.services.length,
+      itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(appBloc.services[index]),
+            contentPadding: EdgeInsets.only(left: 10.0),
+          );
+      },
+    ));
+  }
 
   Widget actionBar(BuildContext context) => ButtonTheme.bar(
           child: ButtonBar(children: <Widget>[
@@ -32,6 +50,11 @@ class DisconnectForm extends StatelessWidget {
           onPressed: () => actionDisconnect(context)
         ),
       ]));
+
+  Widget padding(BuildContext context) => Expanded(
+    flex: 1,
+    child: Placeholder()
+  );
 
   void actionDisconnect(BuildContext context) {
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
