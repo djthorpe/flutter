@@ -30,3 +30,7 @@ Formatting changes
 
 Started to implement the android code, just enough for the plugin
 to work correctly, but not yet return any services.
+
+## 0.0.8
+
+Further work on the Android code, but quite a bit to do

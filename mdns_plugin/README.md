@@ -66,7 +66,7 @@ For a fuller example please see the `example` folder.
 ## Publishing this plugin
 
 (Some notes for me) In order to publish the plugin, edit 
-the `pubspec.yaml` files in the root directory and 
+the `pubspec.yaml` and `CHANGELOG.md` files in the root directory and 
 the `example` directory to bump the version number $TAG 
 and then run the following commands:
 
