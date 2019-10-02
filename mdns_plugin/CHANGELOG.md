@@ -26,3 +26,7 @@ Updated the example code.
 
 Formatting changes
 
+## 0.0.7
+
+Started to implement the android code, just enough for the plugin
+to work correctly, but not yet return any services.

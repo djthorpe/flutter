@@ -82,7 +82,8 @@ class MDNSService {
 class MDNSPlugin {
   static const MethodChannel _methodChannel =
       const MethodChannel('mdns_plugin');
-  final EventChannel _eventChannel = const EventChannel('mdns_plugin_delegate');
+  static const EventChannel _eventChannel =
+      const EventChannel('mdns_plugin_delegate');
   final MDNSPluginDelegate delegate;
 
   // CONSTRUCTORS ///////////////////////////////////////////////////
