@@ -21,6 +21,7 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
   var sink: EventSink? = null
   var activity: Activity? = null
   var discoveryListener: DiscoveryListener? = null
+  val services : HashMap<String,NsdServiceInfo> = HashMap<String,NsdServiceInfo>()
 
   companion object {
     @JvmStatic
@@ -59,10 +60,13 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
         result.success("Android ${android.os.Build.VERSION.RELEASE}")
       }
       "startDiscovery" -> {
-        startDiscovery(result,call.argument<String>("serviceType") ?: "")
+        startDiscovery(result,call.argument<String>("serviceType") ?: "",call.argument<Boolean>("enableUpdating") ?: false)
       }
       "stopDiscovery" -> {
         stopDiscovery(result)
+      }
+      "resolveService" -> {
+        resolveService(result,call.argument<String>("name") ?: "",call.argument<Boolean>("resolve") ?: false)
       }
       else -> {
         result.notImplemented()
@@ -78,11 +82,15 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
     this.sink = null
   }
 
-  private fun startDiscovery(result: Result,serviceType: String) {
+  private fun startDiscovery(result: Result,serviceType: String,enableUpdating: Boolean) {
+    if(enableUpdating) {
+      Log.w("MDNSPlugin", "startDiscovery: enableUpdating is currently ignored on the Android platform")
+    }
     discoveryListener?.let {
       nsdManager?.stopServiceDiscovery(discoveryListener)
     }
     discoveryListener = DiscoveryListener(this);
+    services.clear()
     nsdManager?.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, discoveryListener)
     result.success(null);
   }
@@ -90,18 +98,31 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
   private fun stopDiscovery(result: Result) {
     nsdManager?.stopServiceDiscovery(discoveryListener)
     discoveryListener = null
+    services.clear()
     result.success(null);
+  }
+
+  private fun resolveService(result: Result,name: String, resolve: Boolean) {
+    if(services.containsKey(name)) {
+      if(resolve) {
+        nsdManager?.resolveService(services.get(name),ResolveListener(this));
+      } else {
+        services.remove(name)
+      }
+    } else {
+      Log.w("MDNSPlugin", "resolveService: missing service with name $name")
+    }
   }
 }
 
 class ResolveListener(val plugin: MDNSPlugin) : NsdManager.ResolveListener {
-    override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
-      var serviceInfo = MDNSPlugin.mapFromServiceInfo("onServiceResolved",serviceInfo)
+    override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
+      val serviceMap = MDNSPlugin.mapFromServiceInfo("onServiceResolved",serviceInfo)
       plugin.activity?.runOnUiThread(java.lang.Runnable {
-        plugin.sink?.success(serviceInfo)
+        plugin.sink?.success(serviceMap)
       })
     }  
-    override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+    override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
       when (errorCode) {
         NsdManager.FAILURE_ALREADY_ACTIVE -> {
           // Resolve again after a short delay
@@ -126,22 +147,22 @@ class DiscoveryListener(val plugin: MDNSPlugin) : NsdManager.DiscoveryListener {
       plugin.sink?.success(mapOf("method" to "onDiscoveryStopped"))
     })
   }
-  override fun onServiceFound(serviceInfo: NsdServiceInfo?) {
-    serviceInfo?.let {
-      plugin.nsdManager?.resolveService(serviceInfo,ResolveListener(plugin));
-      val serviceInfo = MDNSPlugin.mapFromServiceInfo("onServiceFound",serviceInfo)
-      plugin.activity?.runOnUiThread(java.lang.Runnable {
-        plugin.sink?.success(serviceInfo)
-      })
+  override fun onServiceFound(serviceInfo: NsdServiceInfo) {
+    val serviceMap = MDNSPlugin.mapFromServiceInfo("onServiceFound",serviceInfo)
+    val name = serviceInfo.getServiceName()
+    name?.let {
+      plugin.services.put(name,serviceInfo)
     }
+    plugin.activity?.runOnUiThread(java.lang.Runnable {
+      plugin.sink?.success(serviceMap)
+    })
   }
-  override fun onServiceLost(serviceInfo: NsdServiceInfo?) {
-    serviceInfo?.let {
-      val serviceInfo = MDNSPlugin.mapFromServiceInfo("onServiceRemoved",serviceInfo)
-      plugin.activity?.runOnUiThread(java.lang.Runnable {
-        plugin.sink?.success(serviceInfo)
-      })
-    }
+  override fun onServiceLost(serviceInfo: NsdServiceInfo) {
+    val serviceMap = MDNSPlugin.mapFromServiceInfo("onServiceRemoved",serviceInfo)
+    plugin.services.remove(serviceInfo.getServiceName())
+    plugin.activity?.runOnUiThread(java.lang.Runnable {
+      plugin.sink?.success(serviceMap)
+    })
   }
   override fun onStartDiscoveryFailed(serviceType: String?, errorCode: Int) {
     Log.d("MDNSPlugin", "onStartDiscoveryFailed: $serviceType: $errorCode")

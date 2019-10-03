@@ -4,17 +4,39 @@ import 'package:flutter/services.dart';
 
 /////////////////////////////////////////////////////////////////////
 
+/// MDNSPluginDelegate encapsulates the delegate functions called
+/// reacting to messages from the local network
 abstract class MDNSPluginDelegate {
+  /// onDiscoveryStarted is called when discovery on the local
+  /// network has started
   void onDiscoveryStarted();
+
+  /// onDiscoveryStopped is called when discovery on the local network
+  /// has stopped
   void onDiscoveryStopped();
-  void onServiceFound(MDNSService service);
+
+  /// onServiceFound is called when a service on the local network
+  /// has been discovered. Your function implementation should
+  /// return true if you want the service to be resolved
+  bool onServiceFound(MDNSService service);
+
+  /// onServiceResolved is called when resolution has occurred,
+  /// filling in the details (hostname, addresses, etc) of the service
   void onServiceResolved(MDNSService service);
+
+  /// onServiceUpdated is called when a found service has updated the
+  /// TXT record
   void onServiceUpdated(MDNSService service);
+
+  /// onServiceRemoved is called when a found service has been removed
+  /// from the local network
   void onServiceRemoved(MDNSService service);
 }
 
 /////////////////////////////////////////////////////////////////////
 
+/// MDNSService encapsulates a service discovered on the local
+/// network
 class MDNSService {
   final Map map;
 
@@ -47,6 +69,7 @@ class MDNSService {
 
   // METHODS ////////////////////////////////////////////////////////
 
+  /// toUTFString decodes a TXT value into a UTF8 string
   static String toUTF8String(List<int> bytes) {
     if (bytes == null) {
       return null;
@@ -79,6 +102,8 @@ class MDNSService {
 
 /////////////////////////////////////////////////////////////////////
 
+/// MDNSPlugin is the provider of the mDNS discovery from the local
+/// network
 class MDNSPlugin {
   static const MethodChannel _methodChannel =
       const MethodChannel('mdns_plugin');
@@ -99,7 +124,9 @@ class MDNSPlugin {
             delegate.onDiscoveryStopped();
             break;
           case "onServiceFound":
-            delegate.onServiceFound(MDNSService.fromMap(args));
+            var service = MDNSService.fromMap(args);
+            this._resolveService(service,
+                resolve: delegate.onServiceFound(service));
             break;
           case "onServiceResolved":
             delegate.onServiceResolved(MDNSService.fromMap(args));
@@ -117,15 +144,34 @@ class MDNSPlugin {
 
   // METHODS ////////////////////////////////////////////////////////
 
+  /// platformVersion returns the underlying platform version of the
+  /// running plugin
   static Future<String> get platformVersion async {
     return await _methodChannel.invokeMethod('getPlatformVersion');
   }
 
-  Future<void> startDiscovery(String serviceType) async {
-    return await _methodChannel.invokeMethod("startDiscovery", {"serviceType": serviceType});
+  /// startDiscovery is invoked to start discovery of services on
+  /// the local network, for a serviceType, which should be, for
+  /// example "_googlecast._tcp" or similar. When the optional
+  /// enableUpdating flag is set to true, resolved services
+  /// respond to updates to the TXT record for the service
+  Future<void> startDiscovery(String serviceType,
+      {bool enableUpdating = false}) async {
+    return await _methodChannel.invokeMethod("startDiscovery",
+        {"serviceType": serviceType, "enableUpdating": enableUpdating});
   }
 
+  /// stopDiscovery should be invoked to shutdown the discovery
+  /// of services on your local network
   Future<void> stopDiscovery() async {
     return await _methodChannel.invokeMethod('stopDiscovery', {});
+  }
+
+  // PRIVATE METHODS ////////////////////////////////////////////////
+
+  Future<void> _resolveService(MDNSService service,
+      {bool resolve = false}) async {
+    _methodChannel.invokeMethod(
+        'resolveService', {"name": service.name, "resolve": resolve});
   }
 }
