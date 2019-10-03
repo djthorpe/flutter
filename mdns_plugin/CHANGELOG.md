@@ -62,7 +62,7 @@ when TXT records are updated, the onServiceUpdated callback is not called
 on the Android platform, since the in-built libraries don't have this
 functionality available.
 
-## 1.0.1
+## 1.1.0
 
 The plugin no longer resolves found services automatically but will only do so
 after "true" is returned from the delegate `onServiceFound`. In addition, the

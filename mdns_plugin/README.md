@@ -2,47 +2,15 @@
 
 Yet another package which discovers network services on the local
 network. Presently, this package is in development, and should
-work for iOS targets. Android targets are forthcoming.
+work for iOS targets. Android targets work with one caveat mentioned
+below.
 
 Please file any issues or feature requests on github, thanks.
 
 ## Using the plugin
 
 You use the plugin by calling `startDiscovery` and `stopDiscovery` on an instance of `MDNSPlugin`, which
-you need to create by passing a delegate instance. That
-instance will receive messages from the plugin:
-
-```dart
-abstract class MDNSPluginDelegate {
-
-  /// onDiscoveryStarted is called when discovery on the local 
-  /// network has started
-  void onDiscoveryStarted();
-
-  /// onDiscoveryStopped is called when discovery on the local network
-  /// has stopped
-  void onDiscoveryStopped();
-
-  /// onServiceFound is called when a service on the local network 
-  /// has been discovered. Your function implementation should 
-  /// return true if you want the service to be resolved
-  bool onServiceFound(MDNSService service);
-
-  /// onServiceResolved is called when resolution has occurred,
-  /// filling in the details (hostname, addresses, etc) of the service
-  void onServiceResolved(MDNSService service);
-
-  /// onServiceUpdated is called when a found service has updated the
-  /// TXT record
-  void onServiceUpdated(MDNSService service);
-
-  /// onServiceRemoved is called when a found service has been removed
-  /// from the local network
-  void onServiceRemoved(MDNSService service);
-}
-```
-
-The `MDNSPlugin` class provides two methods and a constructor:
+you need to create by passing a delegate instance. The `MDNSPlugin` class provides two methods and a constructor:
 
 ```dart
 class MDNSPlugin {
@@ -66,7 +34,39 @@ class MDNSPlugin {
 }
 ```
 
-On Android, the `enableUpdating` flag is currently ignored.
+One limitation is that on Android, the `enableUpdating` flag is currently ignored. Future work will correct this to bring the platforms in parity. The delegate instance will receive messages from the plugin. Your delegate
+class should implement the following methods:
+
+```dart
+abstract class MDNSPluginDelegate {
+
+  /// onDiscoveryStarted is called when discovery on the local 
+  /// network has started
+  void onDiscoveryStarted();
+
+  /// onDiscoveryStopped is called when discovery on the local
+  /// network has stopped
+  void onDiscoveryStopped();
+
+  /// onServiceFound is called when a service on the local network 
+  /// has been discovered. Your function implementation should 
+  /// return true if you want the service to be resolved
+  bool onServiceFound(MDNSService service);
+
+  /// onServiceResolved is called when resolution has occurred,
+  /// filling in the details (hostname, addresses, etc) of the
+  /// service
+  void onServiceResolved(MDNSService service);
+
+  /// onServiceUpdated is called when a found service has updated 
+  /// the TXT record
+  void onServiceUpdated(MDNSService service);
+
+  /// onServiceRemoved is called when a found service has been
+  /// removed from the local network
+  void onServiceRemoved(MDNSService service);
+}
+```
 
 ## Example
 
@@ -98,6 +98,7 @@ class Delegate implements MDNSPluginDelegate {
   }
   bool onServiceFound(MDNSService service) {
       print("Found: $service");
+      // Always returns true which begins service resolution
       return true;
   }
   void onServiceResolved(MDNSService service) {
