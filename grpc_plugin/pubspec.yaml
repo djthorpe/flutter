@@ -1,0 +1,18 @@
+name: grpc_plugin
+description: A gRPC Client which provides methods for connecting and reflection for remote gRPC services
+version: 0.0.1
+author: David Thorpe <djt@mutablelogic.com>
+homepage: https://github.com/djthorpe/flutter/
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  grpc: ^2.1.2
+  protobuf: ^0.14.4 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

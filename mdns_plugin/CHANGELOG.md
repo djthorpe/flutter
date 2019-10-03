@@ -71,6 +71,9 @@ which when set to true will call the `onServiceUpdated` delegate method when
 TXT records are updated on the iOS platform. However, this doesn't yet work
 on Android.
 
+## 1.1.1
+
+Fixed a problem with the Android manifest for the release version
 
 
 
