@@ -8,11 +8,12 @@
 // Properties
 @property(nonatomic, retain) MDNSDelegate* delegate;
 @property(nonatomic, retain) NSNetServiceBrowser *serviceBrowser;
-@property(nonatomic, retain) NSMutableArray* services;
+@property(nonatomic, retain) NSMutableDictionary* services;
 @property(nonatomic) NSTimeInterval resolveTimeout;
+@property(nonatomic) BOOL enableUpdating;
 
 // Methods
--(void)startDiscovery:(NSString* )serviceType inDomain:(NSString* )domain;
+-(void)startDiscovery:(NSString* )serviceType inDomain:(NSString* )domain enableUpdating:(BOOL)enableUpdating resolveTimeout:(NSTimeInterval)timeout;
 -(void)stopDiscovery;
 @end
 
@@ -41,27 +42,40 @@
     NSDictionary* args = (NSDictionary* )call.arguments;
     id serviceType = [args objectForKey:@"serviceType"];
     id domain = [args objectForKey:@"domain"];
-    if([domain isKindOfClass:[NSString class]] && [serviceType isKindOfClass:[NSString class]]) {
-      [self startDiscovery:serviceType inDomain:domain resolveTimeout:[self resolveTimeout]];
-    } else {
-      [self startDiscovery:serviceType inDomain:@"local" resolveTimeout:[self resolveTimeout]];
+    id enableUpdating = [args objectForKey:@"enableUpdating"];
+    if([domain isKindOfClass:[NSString class]] == NO || [(NSString* )domain isEqualToString:@""] == YES) {
+      domain = @"local";
     }
+    if([enableUpdating isKindOfClass:[NSNumber class]] == NO) {
+      enableUpdating = [NSNumber numberWithBool:NO];
+    }
+    [self startDiscovery:serviceType inDomain:domain enableUpdating:[enableUpdating boolValue] resolveTimeout:[self resolveTimeout]];
     result([NSNull null]);
   } else if ([@"stopDiscovery" isEqualToString:call.method]) {
-      [self stopDiscovery];
-      result([NSNull null]);
+    [self stopDiscovery];
+    result([NSNull null]);
+  } else if ([@"resolveService" isEqualToString:call.method]) {
+    NSDictionary* args = (NSDictionary* )call.arguments;
+    id name = [args objectForKey:@"name"];
+    id resolve = [args objectForKey:@"resolve"];
+    if([resolve isKindOfClass:[NSNumber class]] == NO) {
+      resolve = [NSNumber numberWithBool:NO];
+    }
+    [self resolveServiceWithName:name resolve:[resolve boolValue]];
+    result([NSNull null]);
   } else {
     result(FlutterMethodNotImplemented);
   }
 }
 
--(void)startDiscovery:(NSString* )serviceType inDomain:(NSString* )domain resolveTimeout:(NSTimeInterval)timeout {
+-(void)startDiscovery:(NSString* )serviceType inDomain:(NSString* )domain enableUpdating:(BOOL)enableUpdating resolveTimeout:(NSTimeInterval)timeout {
   // If already started, then stop discovery
   [self stopDiscovery];
 
   // Initizalize browser
   self.resolveTimeout = timeout;
-  self.services = [[NSMutableArray alloc] init];
+  self.enableUpdating = enableUpdating;
+  self.services = [[NSMutableDictionary alloc] init];
   self.serviceBrowser = [[NSNetServiceBrowser alloc] init];
   self.serviceBrowser.delegate = self;
 
@@ -77,17 +91,34 @@
     [self.serviceBrowser stop];
     [self.delegate onDiscoveryStopped];
   }
+  [self.services removeAllObjects];
   self.services = nil;
   self.serviceBrowser = nil;
 }
 
+-(void)resolveServiceWithName:(NSString* )name resolve:(BOOL)resolve {
+  NSNetService* aNetService = [[self services] objectForKey:name];
+  if(aNetService != nil && resolve) {
+    [aNetService resolveWithTimeout:self.resolveTimeout];
+    if([self enableUpdating]) {
+      [aNetService startMonitoring];
+    }
+  } else if (aNetService != nil && resolve == NO) {
+    [self.services removeObjectForKey:[aNetService name]];  
+  } else {
+    NSLog(@"Warn: Cannot resolve service with name: %@:",name);
+  }
+}
+
 #pragma mark NSNetServiceDelegate
 -(void)netServiceDidResolveAddress:(NSNetService* )aNetService {
+  [[self services] setObject:aNetService forKey:[aNetService name]];
   [self.delegate onServiceResolved:aNetService];  
 }
 
--(void)netService:(NSNetService* )sender didNotResolve:(NSDictionary* )errorDict {
-  // Ignore the "didNotResolve" message
+-(void)netService:(NSNetService* )sender didNotResolve:(NSDictionary* )errorDict {  
+  NSLog(@"Error: didNotResolve: %@: %@",sender,errorDict);
+  [self.services removeObjectForKey:[sender name]];  
 }
 
 -(void)netService:(NSNetService* )sender didUpdateTXTRecordData:(NSData* )data {
@@ -96,16 +127,16 @@
 
 #pragma NSNetServiceBrowserDelegate
 -(void)netServiceBrowser:(NSNetServiceBrowser* )aNetServiceBrowser didFindService:(NSNetService* )aNetService moreComing:(BOOL)moreComing {
-  [self.delegate onServiceFound:aNetService];  
   [aNetService setDelegate:self];
-  [[self services] addObject:aNetService];
-  [aNetService resolveWithTimeout:self.resolveTimeout];
-  [aNetService startMonitoring];
+  [[self services] setObject:aNetService forKey:[aNetService name]];
+  [self.delegate onServiceFound:aNetService];  
 }
 
 -(void)netServiceBrowser:(NSNetServiceBrowser *)netServiceBrowser didRemoveService:(NSNetService *)aNetService moreComing:(BOOL)moreServicesComing {
-  [aNetService stopMonitoring];
-  [self.services removeObject:aNetService];
+  if([self enableUpdating]) {
+    [aNetService stopMonitoring];
+  }
+  [self.services removeObjectForKey:[aNetService name]];
   [self.delegate onServiceRemoved:aNetService];  
 }
 

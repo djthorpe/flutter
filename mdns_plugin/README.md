@@ -14,31 +14,59 @@ instance will receive messages from the plugin:
 
 ```dart
 abstract class MDNSPluginDelegate {
-    // onDiscoveryStarted is called when discovery has started
-    void onDiscoveryStarted();
 
-    // onDiscoveryStopped is called when discovery has stopped
-    void onDiscoveryStopped();
+  /// onDiscoveryStarted is called when discovery on the local 
+  /// network has started
+  void onDiscoveryStarted();
 
-    // onServiceFound is called when a service is found, but
-    // before the service has been resolved
-    void onServiceFound(MDNSService service);
+  /// onDiscoveryStopped is called when discovery on the local network
+  /// has stopped
+  void onDiscoveryStopped();
 
-    // onServiceResolved is called when a service is resolved
-    void onServiceResolved(MDNSService service);
+  /// onServiceFound is called when a service on the local network 
+  /// has been discovered. Your function implementation should 
+  /// return true if you want the service to be resolved
+  bool onServiceFound(MDNSService service);
 
-    // onServiceUpdated is called when an existing service
-    // has been updated
-    void onServiceUpdated(MDNSService service);
+  /// onServiceResolved is called when resolution has occurred,
+  /// filling in the details (hostname, addresses, etc) of the service
+  void onServiceResolved(MDNSService service);
 
-    // onServiceUpdated is called when a service has been
-    // removed from the network
-    void onServiceRemoved(MDNSService service);
+  /// onServiceUpdated is called when a found service has updated the
+  /// TXT record
+  void onServiceUpdated(MDNSService service);
+
+  /// onServiceRemoved is called when a found service has been removed
+  /// from the local network
+  void onServiceRemoved(MDNSService service);
 }
-
 ```
 
-A current limitation is that on Android, `onServiceUpdated` is currently not called. In addition, resolution is always done but the method `onServiceFound` should return a boolean indicating if resolution needs to be performed. Only service items which have been resolved should then update. This update will be done in the next version of the plugin.
+The `MDNSPlugin` class provides two methods and a constructor:
+
+```dart
+class MDNSPlugin {
+    /// Constructor
+    MDNSPlugin(MDNSPluginDelegate)
+
+    /// platformVersion returns the underlying platform version of the
+    /// running plugin
+    static Future<String> get platformVersion async;
+
+    /// startDiscovery is invoked to start discovery of services on
+    /// the local network, for a serviceType, which should be, for
+    /// example "_googlecast._tcp" or similar. When the optional
+    /// enableUpdating flag is set to true, resolved services
+    /// respond to updates to the TXT record for the service
+    Future<void> startDiscovery(String serviceType,{ bool enableUpdating = false }) async;
+
+    /// stopDiscovery should be invoked to shutdown the discovery
+    /// of services on your local network
+    Future<void> stopDiscovery() async;
+}
+```
+
+On Android, the `enableUpdating` flag is currently ignored.
 
 ## Example
 
@@ -49,24 +77,12 @@ mDNS services being discovered and updated:
 import 'dart:async';
 import 'package:mdns_plugin/mdns_plugin.dart';
 
-void main() {
+void main() async {
     MDNSPlugin mdns = new MDNSPlugin(Delegate());
-    startDiscovery();
+    await mdns.startDiscovery("_googlecast._tcp",enableUpdating: true);
     sleep();
-    stopDiscovery();
+    await mdns.stopDiscovery();
     sleep();
-}
-
-void startDiscovery() {      
-    _mdns.startDiscovery("_googlecast._tcp").then((_) {
-        print("Discovery started");
-    });
-}
-
-void stopDiscovery() {      
-    _mdns.stopDiscovery().then((_) {
-        print("Discovery stopped");
-    });
 }
 
 Future sleep() {
@@ -80,8 +96,9 @@ class Delegate implements MDNSPluginDelegate {
   void onDiscoveryStopped() {
       print("Discovery stopped");
   }
-  void onServiceFound(MDNSService service) {
+  bool onServiceFound(MDNSService service) {
       print("Found: $service");
+      return true;
   }
   void onServiceResolved(MDNSService service) {
       print("Resolved: $service");
@@ -95,7 +112,7 @@ class Delegate implements MDNSPluginDelegate {
 }
 ```
 
-For a fuller example please see the `example` folder.
+For a fuller example please see the application in the `example` folder.
 
 ## Publishing this plugin
 
@@ -106,7 +123,7 @@ and then run the following commands:
 
 ```bash
 bash% TAG=v`sed -n 's/version\: \(.*\)/\1/p' pubspec.yaml`
-bash% flutter format .
+bash% echo $TAG && flutter format .
 bash% git commit -a -m "Updated version to $TAG"
 bash% git push && git tag $TAG && git push --tags
 bash% flutter pub pub publish

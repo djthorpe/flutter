@@ -100,7 +100,7 @@ class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
     if (event is AppEventStart) {
       // Start discovery
       _mdns = MDNSPlugin(this);
-      _mdns.startDiscovery(serviceType);
+      _mdns.startDiscovery(serviceType, enableUpdating: true);
     }
 
     if (event is AppEventDiscovery) {
@@ -118,12 +118,13 @@ class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
     if (event is AppEventService) {
       switch (event.state) {
         case AppEventServiceState.Found:
-          _services.add(event.service);
-          break;
-        case AppEventServiceState.Updated:
-          _services.update(event.service);
+          // We don't add the service when it's found, but only when
+          // it's resolved or updated
           break;
         case AppEventServiceState.Resolved:
+          _services.update(event.service);
+          break;
+        case AppEventServiceState.Updated:
           _services.update(event.service);
           break;
         case AppEventServiceState.Removed:
@@ -140,8 +141,12 @@ class AppBloc extends Bloc<AppEvent, AppState> implements MDNSPluginDelegate {
       this.dispatch(AppEventDiscovery(AppEventDiscoveryState.Started));
   void onDiscoveryStopped() =>
       this.dispatch(AppEventDiscovery(AppEventDiscoveryState.Stopped));
-  void onServiceFound(MDNSService service) =>
-      this.dispatch(AppEventService(AppEventServiceState.Found, service));
+  bool onServiceFound(MDNSService service) {
+    this.dispatch(AppEventService(AppEventServiceState.Found, service));
+    // Always resolve services which have been found
+    return true;
+  }
+
   void onServiceResolved(MDNSService service) =>
       this.dispatch(AppEventService(AppEventServiceState.Resolved, service));
   void onServiceUpdated(MDNSService service) =>
