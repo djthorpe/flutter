@@ -10,6 +10,8 @@ import 'package:reviewapp/models/review.dart';
 import 'package:reviewapp/models/reviews.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('Test MobX state class', () async {
     final Reviews _reviewsStore = Reviews();
 
