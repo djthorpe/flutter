@@ -130,5 +130,5 @@ bash% git push && git tag $TAG && git push --tags
 bash% flutter pub pub publish
 ```
 
-You should then merge `v1` into the `master` branch
+You should then merge `v1` into the `master` branch.
 
