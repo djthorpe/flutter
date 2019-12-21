@@ -75,5 +75,11 @@ on Android.
 
 Fixed a problem with the Android manifest for the release version
 
+## 1.1.3
+
+Updated Android build to Gradle to 3.3.0, thanks to 
+[Clement Wong](https://github.com/clementhk) and some updates for the
+tests. See PR: 
+
 
 
