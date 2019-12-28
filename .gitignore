@@ -22,3 +22,6 @@ doc/api/
 *.pbgrpc.dart
 *.pbjson.dart
 
+.flutter-plugins-dependencies
+
+
