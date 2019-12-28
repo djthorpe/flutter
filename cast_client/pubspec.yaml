@@ -1,0 +1,17 @@
+name: cast_client
+description: Client application for Controlling Google Chromecast Devices
+version: 1.0.0
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  bloc: ^0.15.0
+  flutter_bloc: ^0.21.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
