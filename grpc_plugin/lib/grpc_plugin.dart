@@ -1,7 +1,7 @@
-library grpc_plugin;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
+/////////////////////////////////////////////////////////////////////
+
+/// RPCStub encapsulates a client which calls remote services
+class RPCStub {
+
 }
