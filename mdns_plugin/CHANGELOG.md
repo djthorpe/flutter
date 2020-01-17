@@ -79,7 +79,13 @@ Fixed a problem with the Android manifest for the release version
 
 Updated Android build to Gradle to 3.3.0, thanks to 
 [Clement Wong](https://github.com/clementhk) and some updates for the
-tests. See PR: 
+tests. See [PR](https://github.com/djthorpe/flutter/pull/41)
+
+## 1.1.4
+
+Renamed MdnsPlugin.kt to MDNSPlugin.kt to match the pluginClass: MDNSPlugin entry in pubspec, because flutter pub get failed on operating system with case sensitive filenames [PR](https://github.com/djthorpe/flutter/pull/46). Thanks
+to [Luku1806](https://github.com/Luku1806).
+
 
 
 
