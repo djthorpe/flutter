@@ -41,7 +41,7 @@ class MDNSPlugin : MethodCallHandler,StreamHandler {
 
         val addr = serviceInfo.getHost()?.getHostAddress()
         addr?.let {
-          map["addr"] = listOf(addr,serviceInfo.getPort())
+          map["address"] = listOf(listOf(addr,serviceInfo.getPort()))
         }
       }
       return map
