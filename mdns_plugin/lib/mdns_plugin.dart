@@ -42,20 +42,20 @@ class MDNSService {
 
   // CONSTRUCTORS ///////////////////////////////////////////////////
 
-  MDNSService.fromMap(this.map) : assert(map != null);
+  MDNSService.fromMap(this.map);
 
   // PROPERTIES /////////////////////////////////////////////////////
 
-  String get name => map["name"];
-  String get hostName => map["hostName"];
-  String get serviceType => map["type"];
-  int get port => map["port"];
-  Map get txt => map["txt"];
-  List<String> get addresses {
+  String? get name => map["name"];
+  String? get hostName => map["hostName"];
+  String? get serviceType => map["type"];
+  int? get port => map["port"];
+  Map? get txt => map["txt"];
+  List<String?> get addresses {
     var addresses = map["address"];
 
     if (addresses is List<dynamic>) {
-      var address = List<String>();
+      var address = <String?>[];
       addresses.forEach((value) {
         if (value.length == 2 && value[0] is String) {
           address.add(value[0]);
@@ -71,13 +71,10 @@ class MDNSService {
 
   /// toUTFString decodes a TXT value into a UTF8 string
   static String toUTF8String(List<int> bytes) {
-    if (bytes == null) {
-      return null;
-    } else {
-      return Utf8Codec().decode(bytes);
-    }
+    return Utf8Codec().decode(bytes);
   }
 
+  @override
   String toString() {
     var parts = "";
     if (name != "") {
@@ -86,13 +83,13 @@ class MDNSService {
     if (serviceType != "") {
       parts = parts + "serviceType='$serviceType' ";
     }
-    if (hostName != "" && port > 0) {
+    if (hostName != "" && port! > 0) {
       parts = parts + "host='$hostName:$port' ";
     }
-    if (addresses.length > 0) {
+    if (addresses.isNotEmpty) {
       parts = parts + "addresses=$addresses ";
     }
-    txt.forEach((k, v) {
+    txt!.forEach((k, v) {
       var vstr = toUTF8String(v);
       parts = parts + "$k='$vstr' ";
     });
@@ -105,15 +102,13 @@ class MDNSService {
 /// MDNSPlugin is the provider of the mDNS discovery from the local
 /// network
 class MDNSPlugin {
-  static const MethodChannel _methodChannel =
-      const MethodChannel('mdns_plugin');
-  static const EventChannel _eventChannel =
-      const EventChannel('mdns_plugin_delegate');
+  static const MethodChannel _methodChannel = MethodChannel('mdns_plugin');
+  static const EventChannel _eventChannel = EventChannel('mdns_plugin_delegate');
   final MDNSPluginDelegate delegate;
 
   // CONSTRUCTORS ///////////////////////////////////////////////////
 
-  MDNSPlugin(this.delegate) : assert(delegate != null) {
+  MDNSPlugin(this.delegate) {
     _eventChannel.receiveBroadcastStream().listen((args) {
       if (args is Map && args.containsKey("method")) {
         switch (args["method"]) {
@@ -125,8 +120,7 @@ class MDNSPlugin {
             break;
           case "onServiceFound":
             var service = MDNSService.fromMap(args);
-            this._resolveService(service,
-                resolve: delegate.onServiceFound(service));
+            _resolveService(service, resolve: delegate.onServiceFound(service));
             break;
           case "onServiceResolved":
             delegate.onServiceResolved(MDNSService.fromMap(args));
@@ -146,7 +140,7 @@ class MDNSPlugin {
 
   /// platformVersion returns the underlying platform version of the
   /// running plugin
-  static Future<String> get platformVersion async {
+  static Future<String?> get platformVersion async {
     return await _methodChannel.invokeMethod('getPlatformVersion');
   }
 
@@ -155,10 +149,9 @@ class MDNSPlugin {
   /// example "_googlecast._tcp" or similar. When the optional
   /// enableUpdating flag is set to true, resolved services
   /// respond to updates to the TXT record for the service
-  Future<void> startDiscovery(String serviceType,
-      {bool enableUpdating = false}) async {
-    return await _methodChannel.invokeMethod("startDiscovery",
-        {"serviceType": serviceType, "enableUpdating": enableUpdating});
+  Future<void> startDiscovery(String serviceType, {bool enableUpdating = false}) async {
+    return await _methodChannel.invokeMethod(
+        "startDiscovery", {"serviceType": serviceType, "enableUpdating": enableUpdating});
   }
 
   /// stopDiscovery should be invoked to shutdown the discovery
@@ -169,9 +162,8 @@ class MDNSPlugin {
 
   // PRIVATE METHODS ////////////////////////////////////////////////
 
-  Future<void> _resolveService(MDNSService service,
-      {bool resolve = false}) async {
-    _methodChannel.invokeMethod(
-        'resolveService', {"name": service.name, "resolve": resolve});
+  Future<void> _resolveService(MDNSService service, {bool resolve = false}) async {
+    return _methodChannel
+        .invokeMethod('resolveService', {"name": service.name, "resolve": resolve});
   }
 }
