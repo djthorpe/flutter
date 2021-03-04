@@ -7,7 +7,7 @@ author: David Thorpe <djt@mutablelogic.com>
 homepage: https://github.com/djthorpe/flutter/
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -16,6 +16,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  pedantic: ^1.11.0
 
 flutter:
   plugin:
