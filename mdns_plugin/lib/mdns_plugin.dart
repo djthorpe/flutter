@@ -89,9 +89,11 @@ class MDNSService {
     if (addresses.isNotEmpty) {
       parts = parts + "addresses=$addresses ";
     }
-    txt!.forEach((k, v) {
-      var vstr = toUTF8String(v);
-      parts = parts + "$k='$vstr' ";
+    txt?.forEach((k, v) {
+      if (v != null) {
+        var vstr = toUTF8String(v);
+        parts = parts + "$k='$vstr' ";
+      }
     });
     return "<MDNSService>{ $parts}";
   }
@@ -103,7 +105,8 @@ class MDNSService {
 /// network
 class MDNSPlugin {
   static const MethodChannel _methodChannel = MethodChannel('mdns_plugin');
-  static const EventChannel _eventChannel = EventChannel('mdns_plugin_delegate');
+  static const EventChannel _eventChannel =
+      EventChannel('mdns_plugin_delegate');
   final MDNSPluginDelegate delegate;
 
   // CONSTRUCTORS ///////////////////////////////////////////////////
@@ -149,9 +152,10 @@ class MDNSPlugin {
   /// example "_googlecast._tcp" or similar. When the optional
   /// enableUpdating flag is set to true, resolved services
   /// respond to updates to the TXT record for the service
-  Future<void> startDiscovery(String serviceType, {bool enableUpdating = false}) async {
-    return await _methodChannel.invokeMethod(
-        "startDiscovery", {"serviceType": serviceType, "enableUpdating": enableUpdating});
+  Future<void> startDiscovery(String serviceType,
+      {bool enableUpdating = false}) async {
+    return await _methodChannel.invokeMethod("startDiscovery",
+        {"serviceType": serviceType, "enableUpdating": enableUpdating});
   }
 
   /// stopDiscovery should be invoked to shutdown the discovery
@@ -162,8 +166,9 @@ class MDNSPlugin {
 
   // PRIVATE METHODS ////////////////////////////////////////////////
 
-  Future<void> _resolveService(MDNSService service, {bool resolve = false}) async {
-    return _methodChannel
-        .invokeMethod('resolveService', {"name": service.name, "resolve": resolve});
+  Future<void> _resolveService(MDNSService service,
+      {bool resolve = false}) async {
+    return _methodChannel.invokeMethod(
+        'resolveService', {"name": service.name, "resolve": resolve});
   }
 }
