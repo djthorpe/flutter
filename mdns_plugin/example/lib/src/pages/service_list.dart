@@ -59,13 +59,13 @@ class ServiceList extends StatelessWidget {
               title: Text('FOUND CHROMECASTS'),
               subtitle: Text(
                   "The following devices were found on your local network")),
-          ButtonTheme.bar(
-              child: ButtonBar(children: <Widget>[
+          ButtonBar(children: <Widget>[
             FlatButton(
                 child: const Text('RESCAN'),
-                onPressed: () => appBloc.dispatch(
-                    AppEventDiscovery(AppEventDiscoveryState.Restart)))
-          ]))
+                onPressed: () => appBloc.dispatch(AppEventDiscovery(
+                      AppEventDiscoveryState.Restart,
+                    )))
+          ]),
         ]));
       });
 }

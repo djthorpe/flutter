@@ -12,7 +12,7 @@ import 'package:mdns_plugin/mdns_plugin.dart';
 /////////////////////////////////////////////////////////////////////
 
 class ServiceList {
-  List<MDNSService> _list = List<MDNSService>();
+  List<MDNSService> _list = <MDNSService>[];
 
   // METHODS ////////////////////////////////////////////////////////
 
